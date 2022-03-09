@@ -4,7 +4,7 @@ const generateSignature1A = require("../../../util/generateSignature1A")
 const getCredentials = require("../../../util/getCredentials") */
 const request = require("../../../util/request")
 
-// TODO:    This part needs to be reworked. We need OAuth 2.0 to define scopes.
+// TODO:    This callback needs to be reworked. We need OAuth 2.0 to define scopes.
 //          The only problem is that Twitter's docs are rather lacking and I
 //          don't have the patience to implement scopes with trial and error.
 //          Good luck to the next scrub who is gonna do that :p
@@ -17,6 +17,7 @@ const request = require("../../../util/request")
  * @param {string} redirectURL
  */
 module.exports = async (req, res, session) => {
+    // Get request params
     const url = new URL(req.url, `http://${req.headers.host}`)
     const token = url.searchParams.get("oauth_token")
     if (!token) throw new Error("safe: Missing required data from the query. The user might have rejected the login request.")

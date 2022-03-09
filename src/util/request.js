@@ -79,6 +79,8 @@ module.exports = (
         reject(new RequestError("Headers must be type of object"))
         return
     }
+
+    // Do the request
     const request = library.request(urlInstance, { method }, (res) => {
         const buffer = []
         res.on("data", (chunk) => buffer.push(chunk))

@@ -70,6 +70,8 @@ module.exports = {
                     }))
                     return
                 }
+
+                // Get the request body
                 const bodyBuffer = []
                 req.on("data", (chunk) => bodyBuffer.push(chunk))
                 await new Promise((resolve) => { req.on("end", resolve) })
@@ -90,6 +92,7 @@ module.exports = {
                     return
                 }
 
+                // Get all given inputs
                 const code = searchParams.get("code") ?? ""
                 const grantType = searchParams.get("grant_type") ?? ""
                 const redirectURI = searchParams.get("redirect_uri") ?? ""
@@ -149,6 +152,7 @@ module.exports = {
                         }))
                         return
                     }
+                    // Make sure we are in the desired stage
                     if (session.status !== "completed") {
                         res.writeHead(404, {
                             "Content-Type": "application/json"
@@ -250,6 +254,8 @@ module.exports = {
                     }))
                     return
                 }
+
+                // Generate identifiers for the authentication session and the redirect
                 const internalState = generateRandomString(32)
                 const redirectId = generateRandomString(16)
 
@@ -311,6 +317,7 @@ module.exports = {
                     }))
                     return
                 }
+                // Get the desired authentication method's information
                 const method = url.searchParams.get("method") ?? "" // This is the method id
                 if (method === "") {
                     res.writeHead(400, {
@@ -334,7 +341,9 @@ module.exports = {
 
                 // Process the login redirect request
                 try {
+                    // Change authentication session stage
                     const session = await getAuthenticationSession({ redirectId })
+                    // Make sure we are in the desired stage
                     if (session?.status !== "created") {
                         res.writeHead(401, {
                             "Content-Type": "application/json"
@@ -356,6 +365,7 @@ module.exports = {
                             req, res, session, redirectUrl, methodObject
                         )
                     } else {
+                        // Construct the redirection URL and redirect the user
                         const location = methodObject.url
                             // eslint-disable-next-line no-template-curly-in-string
                             .replace("${state}", session.internalState)
@@ -399,6 +409,7 @@ module.exports = {
                 }
                 // Verify session
                 const session = await getAuthenticationSession({ internalState })
+                // Make sure we are in the desired stage
                 if (session.status !== "pending") {
                     res.writeHead(401, {
                         "Content-Type": "application/json"
@@ -418,7 +429,7 @@ module.exports = {
                         code
                     })
                     session.code = code
-                    // Process the callback
+                    // Send the request to the specific method callback handler
                     const method = resolveFromObject("id", session.authenticationPlatform, methods)?.name
                     if (!method) throw new Error("safe: Unknown callback method")
                     await callbacks[method.toLowerCase()](
@@ -441,7 +452,7 @@ module.exports = {
                     return
                 }
                 try {
-                    // Validate token
+                    // Get the authentication session
                     const session = await getAuthenticationSession({ token: token.replace("Bearer ", "") })
                     if (!session) {
                         res.writeHead(401, {
@@ -452,6 +463,7 @@ module.exports = {
                         }))
                         return
                     }
+                    // Make sure we are in the desired stage
                     if (session.status !== "stored") {
                         res.writeHead(401, {
                             "Content-Type": "application/json"

@@ -38,6 +38,7 @@ module.exports = {
             return
         }
         try {
+            // Construct and make sure the given path is safe to load files from
             let initialPath = normalize(new URL(req.url, `http://${req.headers.host}`).pathname.replace("/", "").replace(/(\.\.(\/|\\|))+/gm, ""))
             // If we request the directory root, respond with index.html
             if (initialPath === "app" || initialPath === "app/") initialPath = "app/index.html"
