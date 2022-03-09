@@ -1,7 +1,7 @@
 const http = require("http")
 
 const clientId = "d3c89442d3574aa5bbaea011f2d43e14"
-const redirectUri = "http://localhost/callback"
+const redirectUri = "http://idexample.testausserveri.fi"
 const secret = "572db82f6c93225138b12f4bc123f4031e1c48bf5abcd7aaa015135f14a549fe"
 const scopes = "id,account,contact,security"
 
@@ -63,7 +63,7 @@ const Server = http.createServer(async (req, res) => {
             <h1>Testausserveri ID's server-side authorization code grant implementation example</h1>
             <p>Click the link below to begin the authentication flow</p>
             <h3>
-                <a href='http://localhost:7080/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login with Testausserveri ID</a>
+                <a href='http://id.testausserveri.fi/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login with Testausserveri ID</a>
             </h3>
         `)
     } else if (req.url.startsWith("/callback")) {
