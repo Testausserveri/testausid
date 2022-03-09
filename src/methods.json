@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Discord",
+        "id": "2db260c7-8ca9-42a3-8de8-a6a3c37be89e",
+        "icon": "/app/assets/Discord.svg",
+        "url": "https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&response_type=code&scope=${scopes}&redirect_uri=${redirectURI}&state=${state}",
+        "credentials": {
+            "clientId": "DISCORD_CLIENT_ID",
+            "secret": "DISCORD_CLIENT_SECRET"
+        }
+    },
+    {
+        "name": "Twitter",
+        "id": "ba8aad4d-9014-4ecc-9df3-e2d520b4c23e",
+        "icon": "/app/assets/Twitter.svg",
+        "url": "https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}",
+        "credentials": {
+            "apiKey": "TWITTER_API_KEY",
+            "apiKeySecret": "TWITTER_API_KEY_SECRET"
+        }
+    }
+]

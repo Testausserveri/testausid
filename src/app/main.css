@@ -1,0 +1,512 @@
+@font-face {
+    font-family: "Roboto";
+    src: url("/app/assets/roboto.woff2") format("woff");
+    font-display: swap
+}
+
+/* Globals */
+* {
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+
+    font-family: Roboto, sans-serif;
+    color: var(--main);
+    transition: 
+        background-color 0.2s ease-in-out,
+        color 0.2s ease-in-out,
+        opacity 0.3s ease-in-out,
+        max-height 0.3s ease-in-out;
+}
+body, html {
+    background-color: var(--background);
+}
+
+/* Color pallet */
+:root {
+    --background: #121212;
+    --highlight: #445282;
+    --base: #1e1e1e;
+    --main: #bbb;
+    --secondary: rgb(45, 45, 51);
+    --item-base: #161b2b;
+    --item-base-secondary: rgb(49, 52, 59);
+    --notice: #445282;
+    --border: #222;
+}
+
+/* Brand selector */
+.blur {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background-color: var(--background);
+    filter: blur();
+    opacity: 0;
+    display: none;
+    z-index: 97;
+}
+
+.brandSelection {
+    position: fixed;
+    display: flex;
+    align-content: flex-end;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    align-items: flex-end;
+    right: 10px;
+    top: 10px;
+    width: 200px;
+    min-height: 300px;
+    z-index: 98;
+}
+
+.brandSelection>.icon {
+    width: 50px;
+    display: block;
+    height: 50px;
+    min-height: 50px;
+    border-radius: 50%;
+    background-color: var(--item-base);
+    background-image: url("/app/assets/palette-solid.svg");
+    background-size: 40% 40%;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 2px solid var(--highlight);
+    z-index: 99;
+}
+.brandSelection>.icon:hover {
+    background-color: var(--highlight);
+}
+.brandSelection>.brands {
+    border: 1px solid var(--border);
+    background-color: var(--base);
+    border-radius: 8px;
+    max-height: 0px;
+    display: none;
+    opacity: 0;
+    list-style: none;
+    width: 100%;
+    height: auto;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+.brandSelection>.brands>li {
+    border: 1px solid var(--border);
+    background-color: var(--item-base-secondary);
+    border-radius: 8px;
+    width: 95%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    align-content: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    height: 40px;
+    margin-top: 10px;
+    cursor: pointer;
+    margin-left: 2.5%;
+}
+.brandSelection>.brands>p {
+    height: 18px;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+.brandSelection>.brands>li:hover {
+    background-color: var(--highlight);
+}
+.brandSelection>.brands>li>img {
+    height: 100%;
+    width: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+/* Thumbnail */
+.thumbnail {
+    position: absolute;
+    display: block;
+    background-image: url("/app/assets/TS.webp");
+    background-size: 40px 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    top: 2.5%;
+    left: 2.5%;
+    z-index: 4;
+}
+.thumbnail:after {
+    line-height: 40px;
+    margin-left: 50px;
+    width: 160px;
+    display: block;
+    font-family: Poppins;
+    content: "Testausserveri ry"
+}
+
+/* Main container */
+.container {
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 40px - 5%);
+    min-width: 246px;
+    top: calc(40px + 5%);
+    left: 0px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    background-color: var(--background);
+    z-index: 3;
+}
+
+/* Main container item (child) */
+.container>div {
+    margin-top: calc(-40px - 5%);
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* App container */
+.app {
+    max-width: 500px;
+    min-height: 500px;
+    width: 100%;
+    margin-right: 2.5%;
+
+    border: 1px solid var(--border);
+    background-color: var(--base);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.app .header {
+    text-align: left;
+    font-size: 18px;
+
+    height: 30px;
+    width: calc(100% - 10%);
+    margin-left: 5%;
+    margin-top: 5%;
+
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+}
+
+.app .header p {
+    text-align: left;
+    width: 500px;
+    font-size: 18px;
+    padding: 0px;
+}
+
+/* App footer */
+.footer, .footer>*, .footer>*>* {
+    text-align: left;
+    max-width: 450px;
+}
+
+/* Line */
+.line {
+    display: inline-block;
+    width: 90%;
+    height: 2px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-left: 5%;
+
+    background-color: var(--secondary);
+    border-radius: 8px;
+}
+
+/* Loading box */
+.loadingBox {
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 5% - 40px);
+    top: 0px;
+    left: 0px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    z-index: 1;
+}
+.loadingBox>div {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+    width: calc(100% - 2px);
+    max-width: 500px;
+    min-height: 200px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    border: 1px solid var(--border);
+    background-color: var(--base);
+    border-radius: 14px;
+}
+
+.loadingBox button {
+    width: 200px;
+    height: 50px;
+    margin-bottom: 5%;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--item-base-secondary);
+    text-align: center;
+    cursor: pointer;
+}
+.loadingBox button:hover {
+    background-color: var(--highlight);
+}
+
+.loadingWheelContainer {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 5%;
+    margin-top: 5%;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+}
+.loadingWheel {
+    width: 60px;
+    height: 60px;
+    display: block;
+
+    animation: spinner 2s linear infinite;
+
+    border: 10px solid var(--item-base);
+    border-top: 10px solid var(--highlight);
+    border-radius: 50%;
+}
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg); 
+    }
+}
+
+/* App content */
+.app .content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: flex-start;
+    min-height: 300px;
+    transition: 
+        background-color 0.2s ease-in-out,
+        color 0.2s ease-in-out,
+        opacity 0.3s ease-in-out;
+}
+.app .content p {
+    text-align: left;
+    width: 90%;
+    margin-left: 5%;
+    margin-bottom: 3px;
+    font-size: 15px;
+}
+
+.app .content p>a {
+    font-weight: 600;
+}
+
+.app .content>a {
+    text-align: left;
+    display: block;
+    width: 90%;
+    margin-left: 5%;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5%;
+}
+.app .content>a:hover {
+    color: var(--highlight);
+}
+
+.targetImage {
+    width: 80px;
+    height: 80px;
+    padding-left: calc(50% - 40px);
+    padding-right: calc(50% - 40px);
+}
+
+.scopes {
+    width: 90%;
+    margin-top: 1.5%;
+    margin-left: 10%;
+    font-size: 15px;
+    font-weight: 800;
+    list-style: circle;
+    margin-bottom: 5%;
+}
+
+.methods {
+    width: 90%;
+    margin-left: 5%;
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    height: auto;
+    margin-bottom: 5%;
+}
+
+.methods>li {
+    display: inline-flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    width: 45%;
+    height: 60px;
+    margin-right: 2.5%;
+    margin-bottom: 2.5%;
+
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--item-base-secondary);
+    transition: filter 0.2s ease-in-out;
+    cursor: pointer;
+}
+.methods>li:nth-child(2n) {
+    margin-right: 0px;
+}
+.methods>li:nth-last-child(-n+2) {
+    margin-bottom: unset;
+}
+.methods>li:hover {
+    filter: brightness(0.7);
+}
+
+.methods>li>img {
+    padding: 10px;
+    border-radius: 8px 0px 0px 8px;
+    background-color: var(--highlight);
+    width: 40px;
+    height: 40px;
+}
+
+.methods>li>p {
+    width: calc(100% - 60px - 10px) !important;
+    height: 20px !important;
+    line-height: 20px !important;
+    margin-left: 10px !important;
+    font-size: 20px !important;
+    margin-bottom: unset !important;
+    font-weight: 400;
+    float: right;
+}
+
+/* App footer */
+.app .footer {
+    width: 100%;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 5%;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+}
+.app .footer button {
+    width: 200px;
+    height: 50px;
+    margin-bottom: 5%;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: var(--item-base-secondary);
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+}
+.app .footer button:hover {
+    background-color: var(--highlight);
+}
+
+.app .footer>.line {
+    width: 100%;
+    margin-left: unset;
+}
+
+.app .footer p {
+    float: left;
+    width: 100%;
+    display: block;
+}
+
+/* Error text */
+.error {
+    display: none;
+    width: 100%;
+    text-align: center;
+    color: var(--notice);
+    font-size: 30px;
+}
+
+/* Media queries */
+@media (max-width: 1050px) {
+    .container {
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: column;
+        height: auto;
+    }
+    .container>div {
+        margin-top: unset;
+    }
+
+    .app {
+        margin-right: unset;
+    }
+}
+
+@media (max-width: 540px) {
+    .app {
+        max-width: 94%;
+        margin-top: 3%;
+    }
+
+    .footer {
+        max-width: 94%;
+    }
+}
+
+@media (max-width: 480px) {
+    .methods>li {
+        width: 100%;
+        margin-right: unset;
+        display: flex;
+    }
+    .methods>li:nth-last-child(-n+2) {
+        margin-bottom: 2.5%;
+    }
+
+    .methods {
+        flex-direction: column;
+    }
+}

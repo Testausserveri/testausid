@@ -1,0 +1,45 @@
+{
+    "defaultBrand": "Blue Night",
+    "brands": {
+        "Blue Night": {
+            "icon": "/app/assets/DarkTheme.svg",
+            "type": "dark",
+            "colors": {
+                "background": "#121212",
+                "highlight": "#445282",
+                "base": "#1e1e1e",
+                "main": "#bbb",
+                "secondary": "rgb(45, 45, 51)",
+                "item-base": "#161b2b",
+                "item-base-secondary": "rgb(49, 52, 59)",
+                "notice": "#445282",
+                "border": "#222"
+            },
+            "text": {
+                "copyright": "Testausserveri ry",
+                "appName": "Testausserveri ID",
+                "appType": "service"
+            }
+        },
+        "Blue Morning": {
+            "icon": "/app/assets/LightTheme.svg",
+            "type": "light",
+            "colors": {
+                "background": "#eee",
+                "highlight": "#7289DA",
+                "base": "#c9d4f9",
+                "main": "#111",
+                "secondary": "rgb(45, 45, 51)",
+                "item-base": "#e2e7f7",
+                "item-base-secondary": "#e2e7f7",
+                "notice": "#e2e7f7",
+                "border": "#ccc"
+            },
+            "text": {
+                "copyright": "Testausserveri ry",
+                "appName": "Testausserveri ID",
+                "appType": "service"
+            }
+        }
+    }
+}

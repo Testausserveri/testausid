@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Select method</title>
+    <meta name="description" content="Testausserveri ID - OpenID login service">
+    <meta name="author" content="Testausserveri ry">
+    <link rel="icon" type="image/png" href="/app/assets/favicon.png" />
+    <link rel="stylesheet" href="/app/main.css">
+    <link rel="preload" as="font" href="/app/assets/roboto.woff2">
+</head>
+<body>
+    <!-- Bran selector -->
+    <span class="blur" id="blur"></span>
+    <div class="brandSelection">
+        <ul class="brands" id="brands">
+            <p>Select a theme</p>
+        </ul>
+        <span class="icon" id="brandsButton"></span>
+    </div>
+    <!-- Thumbnail -->
+    <span class="thumbnail"></span>
+    <!-- Flex container -->
+    <div class="container" id="container">
+        <!-- Main app body -->
+        <div class="app">
+            <!-- App content header -->
+            <div class="header">
+                <p style="white-space: nowrap;">Sign in via <wbr><a name="appName">...</a></p>
+                <ul class="brands" id="brands"></ul>
+            </div>
+            <span class="line"></span>
+            <!-- Error -->
+            <h2 class="error" id="errorText">...</h2>
+            <!-- App content -->
+            <div class="content" id="appContent">
+                <img class="targetImage" id="targetImage">
+                <p name="target" style="text-align: center; font-size: 18px; margin-bottom: 3px;">...</p>
+                <a id="targetHomepage" style="text-align: center;"></a>
+                <p>Select a platform and continue to <a name="target">...</a> via login.</p>
+                <p>This will allow <a name="target">...</a> to:</p>
+                <ul class="scopes" id="scopes">
+                </ul>
+                <ul class="methods" id="methods"></ul>
+            </div>
+            <!-- App content footer-->
+            <div class="footer" id="footer">
+                <span class="line"></span>
+                <button id="return">Cancel</button>
+                <p style="white-space: nowrap;">Copyright © <a name="copyright">...</a>.<wbr> All rights reserved.</p>
+            </div>
+        </div>
+        <!-- Main app footer-->
+        <div class="footer">
+            <p>
+                <b>
+                    What is this?
+                </b>
+                <br>
+                This is the <a name="appName"></a> <a name="appType"></a>, which is used to authenticate to other verified 3rd-party applications.
+                <br>
+                <br>
+                <b>
+                    What information will be collected?
+                </b>
+                <br>
+                The <a name="appName"></a> <a name="appType"></a> does not store anything permanently. Only the requested account information will pass through the <a name="appType"></a> and your data will be automatically deleted in less than 30 minutes.
+            </p>
+        </div>
+    </div>
+    <!-- Loading box -->
+    <div class="loadingBox">
+        <div>
+            <div class="loadingWheelContainer">
+                <span class="loadingWheel"></span>
+            </div>
+            <button id="cancel">Cancel</button>
+        </div>
+    </div>
+    <script src="/app/index.js"></script>
+</body>
+</html>
