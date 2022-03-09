@@ -19,7 +19,7 @@ const preflights = Object.fromEntries(readdirSync("./src/methods/api/_preflights
     .map((name) => [name.replace(".js", "").toLowerCase(), require(`./_preflights/${name}`)]))
 
 // Redirect url
-const redirectUrl = `http://${process.env.ROOTDOMAIN ?? "localhost"}:${process.env.PORT ?? 7080}/api/v1/callback`
+const redirectUrl = `${process.env.REDIRECTBASE ?? "http://localhost:7080"}/api/v1/callback`
 
 /**
  * Handle server error
