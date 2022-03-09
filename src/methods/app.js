@@ -38,7 +38,7 @@ module.exports = {
             return
         }
         try {
-            let initialPath = normalize(req.url.split("?")[0].replace("/", "").replace(/^(\.\.(\/|\\|$))+/gm, ""))
+            let initialPath = normalize(req.url.split("?")[0].replace("/", "").replace(/(\.\.(\/|\\|))+/gm, ""))
             // If we request the directory root, respond with index.html
             if (initialPath === "app" || initialPath === "app/") initialPath = "app/index.html"
             let path = join(join(process.cwd(), "./src/"), initialPath)
