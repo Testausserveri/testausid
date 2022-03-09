@@ -5,6 +5,6 @@ services:
         restart: unless-stopped
         build:
             context: .
-            newtork: host
+            network: host
         ports:
             - "7081:80"
