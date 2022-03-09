@@ -4,7 +4,7 @@
 </div>
 <br>
 
-*Use one OAuth2 service as a proxy to many more.*
+*Use one OAuth2 service as a proxy for many more.*
 
 That's the general idea. The implementation though, in the terms of security, is a little more complex.
 
@@ -250,7 +250,7 @@ Errors thrown by methods, which begin with `safe: `, will have their message as 
     - Authentication stage changes (pending)*
 5. User is redirected to login provider
 6. User is redirected from login provider to /api/v1/callback
-    - Authentication stage changes (completed)
+    - Authentication stage changes (completed)*
 7. User is redirected back to app with ?code=...
 8. App requests /api/v1/token?code=... and gets token
     - Authentication stage changes (stored)*
