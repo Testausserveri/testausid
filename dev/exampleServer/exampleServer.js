@@ -67,7 +67,6 @@ const Server = http.createServer(async (req, res) => {
             </h3>
         `)
     } else if (req.url.startsWith("/callback")) {
-        console.log("Callback!")
         try {
             const url = new URL(req.url, `http://${req.headers.host}/`)
             const code = url.searchParams.get("code")
