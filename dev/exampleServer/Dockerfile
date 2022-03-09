@@ -12,4 +12,4 @@ EXPOSE 7081
 
 USER node
 
-CMD ["node", "exampleServer"]
+CMD ["node", "exampleServer.js"]
