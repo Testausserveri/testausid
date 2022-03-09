@@ -16,8 +16,6 @@ Twitter represents the OAuth 1.0a authentication flow and Discord the OAuth 2.0 
 You can test the application directly at `id.testausserveri.fi`
 and the example client implementation at `idexample.testausserveri.fi`.
 
-(note: these will be setup soon)
-
 # TODO-list
 You should read these before making an issue. These will be fixed/implemented asap.
 - Distinguishable unique identifiers. Tokens, codes, secrets and ids should look different. For example, the ID could only be numbers.
