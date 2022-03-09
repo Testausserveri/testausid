@@ -3,7 +3,7 @@ const http = require("http")
 const clientId = "d3c89442d3574aa5bbaea011f2d43e14"
 const redirectUri = "http://localhost/callback"
 const secret = "572db82f6c93225138b12f4bc123f4031e1c48bf5abcd7aaa015135f14a549fe"
-const scopes = "token,id,account,contact,security"
+const scopes = "id,account,contact,security"
 
 /**
  * @typedef {object} RequestResponse A request response
@@ -82,17 +82,13 @@ const Server = http.createServer(async (req, res) => {
                     "Content-Type": "application/x-www-form-urlencoded"
                 }, tokenParams.toString()
             )
-            console.log(token)
-            if (token.status !== 200) throw new Error("Failed to fetch token")
+            if (token.status !== 200) throw new Error("Failed to fetch token", token)
             const tokenData = JSON.parse(token.data)
-            console.log("Got token data:", tokenData)
             const me = await request("GET", "http://localhost:7080/api/v1/me", {
                 Authorization: `Bearer ${tokenData.token}`
             })
-            console.log(me)
-            if (me.status !== 200) throw new Error("Failed to fetch user data")
+            if (me.status !== 200) throw new Error("Failed to fetch user data", me)
             const userData = JSON.parse(me.data)
-            console.log("Got user data:", userData)
             res.writeHead(200, {
                 "Content-Type": "text/html"
             })
