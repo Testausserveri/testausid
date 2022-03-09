@@ -3,5 +3,8 @@ version: "3.9"
 services:
     testausserveri-id-example:
         restart: unless-stopped
+        build:
+            context: .
+            newtork: host
         ports:
             - "7081:80"
