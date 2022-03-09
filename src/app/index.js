@@ -5,12 +5,14 @@ const errorText = document.getElementById("errorText")
 const footer = document.getElementById("footer")
 const originalHref = String(window.location.href)
 const useCache = localStorage.getItem("useCache") !== null
+console.log("UseCache?", useCache)
 localStorage.removeItem("useCache")
 
 // Variables
 let applicationReady = false
 let methodsReady = false
 let redirecting = false
+let contentDisplayed = false
 
 // Elements
 const container = document.getElementById("container")
@@ -89,6 +91,7 @@ function redirectTo(url) {
     if (redirecting) throw new Error("Already trying to redirect")
     redirecting = true
     container.style.opacity = 0
+    container.style.display = "none"
     window.location.replace(url)
 }
 
@@ -104,13 +107,27 @@ function toError(text) {
 cancelButton.onclick = () => {
     if (!redirecting) return
     localStorage.setItem("useCache", "true")
-    window.location.href = originalHref
+    window.location.replace(originalHref)
 }
 
 // Cancel the login
 returnButton.onclick = () => {
     if (!window.application?.homepage) return
     window.location.href = window.application.homepage
+}
+
+// Display the app content
+async function display() {
+    if (!applicationReady || !methodsReady || !window.activeBrand || contentDisplayed) return
+    contentDisplayed = true
+    container.style.display = "flex"
+    await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)) })
+    container.style.opacity = 1
+    await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)) })
+    appContent.style.opacity = 1
+    appContent.style.maxHeight = "500px"
+    methods.style.opacity = 1
+    methods.style.maxHeight = "500px"
 }
 
 // Fetch application information
@@ -123,7 +140,7 @@ function processApplication(data) {
         return
     }
     window.application = data
-    localStorage.setItem("applicationCache", data)
+    localStorage.setItem("applicationCache", JSON.stringify(data))
 
     // Application names
     const targetFields = document.getElementsByName("target")
@@ -149,18 +166,12 @@ function processApplication(data) {
         scopesList.appendChild(scopeElement)
     }
 
-    appContent.style.opacity = 1
-    appContent.style.maxHeight = "500px"
     applicationReady = true
-
-    if (methodsReady) {
-        methods.style.opacity = 1
-        methods.style.maxHeight = "500px"
-    }
+    display()
 }
 function getApplication() {
     if (useCache) {
-        processApplication(localStorage.getItem("applicationCache"))
+        processApplication(JSON.parse(localStorage.getItem("applicationCache")))
     } else {
         fetch(`/api/v1/application?client_id=${getQueryParam("client_id")}`)
             .then((response) => response.json())
@@ -177,7 +188,7 @@ async function processBranding(data) {
     console.log("Branding", data)
     window.branding = data
     getApplication()
-    localStorage.setItem("brandCache", data)
+    localStorage.setItem("brandCache", JSON.stringify(data))
 
     // Populate list
     // eslint-disable-next-line guard-for-in
@@ -208,11 +219,11 @@ async function processBranding(data) {
         // Set favored brand type
         else setBrand(favoredBrand)
     }
-    await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)) })
-    container.style.opacity = 1
+
+    display()
 }
 if (useCache) {
-    processBranding(localStorage.getItem("brandCache"))
+    processBranding(JSON.parse(localStorage.getItem("brandCache")))
 } else {
     fetch("/app/branding.json")
         .then((response) => response.json())
@@ -226,7 +237,7 @@ if (useCache) {
 methods.style.maxHeight = "0px"
 methods.style.opacity = 0
 function processMethods(data) {
-    localStorage.setItem("methodsCache", data)
+    localStorage.setItem("methodsCache", JSON.stringify(data))
     for (const method of data) {
         const li = document.createElement("li")
         const img = document.createElement("img")
@@ -242,14 +253,12 @@ function processMethods(data) {
         li.append(img, p)
         methods.appendChild(li)
     }
+
     methodsReady = true
-    if (applicationReady) {
-        methods.style.opacity = 1
-        methods.style.maxHeight = "500px"
-    }
+    display()
 }
 if (useCache) {
-    processMethods(localStorage.getItem("methodsCache"))
+    processMethods(JSON.parse(localStorage.getItem("methodsCache")))
 } else {
     fetch("/api/v1/methods")
         .then((response) => response.json())

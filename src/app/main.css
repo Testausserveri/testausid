@@ -48,7 +48,7 @@ body, html {
 }
 
 .brandSelection {
-    position: fixed;
+    position: absolute;
     display: flex;
     align-content: flex-end;
     flex-direction: column-reverse;
@@ -155,7 +155,7 @@ body, html {
     top: calc(40px + 5%);
     left: 0px;
 
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     flex-direction: row;
@@ -489,6 +489,11 @@ body, html {
     .app {
         max-width: 94%;
         margin-top: 3%;
+    }
+
+    .loadingBox {
+        max-width: 94%;
+        margin-left: 3%;
     }
 
     .footer {
