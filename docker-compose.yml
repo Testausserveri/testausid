@@ -16,6 +16,8 @@ services:
             - "7080:7080"
         links:
             - testausserveri-id-mongo
+        stdin_open: true
+        tty: true
     testausserveri-id-mongo:
         container_name: testausserveri-id-mongo
         restart: unless-stopped
