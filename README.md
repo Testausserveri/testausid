@@ -200,6 +200,11 @@ The callback url from the selected authentication method. Request requirements a
 
 ### `GET /api/v1/me`
 Get information about the logged-in user.
+
+**Request requirements**
+- The request headers must include the account access token as "Bearer" (`Bearer <token>`).
+
+**Example response**
 ```http
 HTTP/1.1 200 OK
 Content-Type: text/html
@@ -223,10 +228,6 @@ Content-Length: ...
 }
 ```
 
-**Request requirements**
-- The request headers must include the account access token as "Bearer" (`Bearer <token>`).
-
-**Example response**
 
 # Development resources and notes
 About OAuth: https://aaronparecki.com/oauth-2-simplified/
