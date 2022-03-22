@@ -15,7 +15,7 @@
  * @typedef {object} requestResponse
  * @property {string} status HTTP response status code
  * @property {Object} headers HTTP response headers
- * @property {string|Buffer} body HTTP response body
+ * @property {string|Buffer} data HTTP response body
  */
 
 // Custom errors
@@ -92,7 +92,7 @@ module.exports = (
     })
 
     // Send headers
-    if (headers !== undefined && Object.keys(headers).length !== 0) for (const header in headers) request.setHeader(header, headers[header])
+    if (headers !== undefined && Object.keys(headers).length !== 0) for (const header of Object.keys(headers)) request.setHeader(header, headers[header])
     if (options?.overrideContentLength) request.setHeader("Content-Length", options.overrideContentLength)
     else if (body !== undefined && body.length > 0) {
         request.setHeader("Content-Length", Buffer.byteLength(body))
