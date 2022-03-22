@@ -1,6 +1,7 @@
 const scopeSeparator = {
     Discord: "%20",
-    Twitter: "-"
+    Twitter: "-",
+    Github: ", "
 }
 
 const scopeConversion = {
@@ -10,13 +11,22 @@ const scopeConversion = {
         contact: "email",
         security: null
     },
-    Twitter: {}
+    Twitter: {},
+    Github: {
+        id: "read:user",
+        account: "read:user",
+        contact: "user:email",
+        security: null
+    }
 }
 
+/*
 const removeLessValuable = {
     Discord: {},
-    Twitter: {}
+    Twitter: {},
+    Github: {}
 }
+*/
 
 /**
  * Get OAuth 2.0 scopes based on session scopes
@@ -29,7 +39,8 @@ module.exports = (platform, sessionScopes) => {
     if (!scopeSeparator[platform]) throw new Error("No scope separator defined for the the given platform")
     return sessionScopes
         .map((scope) => scopeConversion[platform][scope])
-        .map((scope, _, scopes) => (Object.keys(removeLessValuable[platform]).includes(scope) && scopes.includes(removeLessValuable[platform][scope]) ? null : scope))
+        // .map((scope, _, scopes) => (Object.keys(removeLessValuable[platform]).includes(scope) && scopes.includes(removeLessValuable[platform][scope]) ? null : scope))
         .filter((val) => val !== null)
+        .filter((val, index, ar) => ar.indexOf(val) === index) // No duplicates (quadratic time is a-ok)
         .join(scopeSeparator[platform])
 }
