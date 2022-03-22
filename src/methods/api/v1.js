@@ -410,7 +410,7 @@ module.exports = {
                 // Verify session
                 const session = await getAuthenticationSession({ internalState })
                 // Make sure we are in the desired stage
-                if (session.status !== "pending") {
+                if (session?.status !== "pending") {
                     res.writeHead(401, {
                         "Content-Type": "application/json"
                     })
