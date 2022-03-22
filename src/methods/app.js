@@ -63,7 +63,7 @@ module.exports = {
             // This should never be true and the regex above should be enough
             // to avoid filesystem traversal
             if (!path.startsWith(join(process.cwd(), "./src/app/"))) {
-                res.writeHead(404, {
+                res.writeHead(400, {
                     "Content-Type": "text/plain"
                 })
                 res.end("Unexpected given filepath.")
