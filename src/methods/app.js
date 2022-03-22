@@ -40,10 +40,12 @@ module.exports = {
         try {
             // Construct and make sure the given path is safe to load files from
             let initialPath = normalize(new URL(req.url, `http://${req.headers.host}`).pathname.replace("/", "").replace(/(\.\.(\/|\\|))+/gm, ""))
+
             // If we request the directory root, respond with index.html
             if (initialPath === "app" || initialPath === "app/") initialPath = "app/index.html"
             let path = join(join(process.cwd(), "./src/"), initialPath)
             let fileType = path.split(".").reverse()[0].toLowerCase()
+
             // If path does not include a filetype, expect it to be .html.
             // If a .html file with the same name exists.
             if (!fileTypeRegex.test(fileType) && existsSync(`${path}.html`) && statSync(`${path}.html`).isFile()) {
@@ -56,6 +58,19 @@ module.exports = {
                 res.end("No such file")
                 return
             }
+
+            // As a sanity check, the filepath should start with cwd+/src/app/
+            // This should never be true and the regex above should be enough
+            // to avoid filesystem traversal
+            if (!path.startsWith(join(process.cwd(), "./src/app/"))) {
+                res.writeHead(404, {
+                    "Content-Type": "text/plain"
+                })
+                res.end("Unexpected given filepath.")
+                return
+            }
+
+            // Send the data
             res.writeHead(200, {
                 "Content-Type": contentTypeTable[fileType] ?? "text/plain",
                 "Cache-Control": "max-age=31536000"
