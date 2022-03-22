@@ -18,5 +18,15 @@
             "apiKey": "TWITTER_API_KEY",
             "apiKeySecret": "TWITTER_API_KEY_SECRET"
         }
+    },
+    {
+        "name": "Github",
+        "id": "64a448c9-c4f6-44aa-a5c3-a3834cc000de",
+        "icon": "/app/assets/Github.svg",
+        "url": "https://github.com/login/oauth/authorize?scope=${scopes}&client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${redirectURI}%3Fstate=${state}",
+        "credentials": {
+            "clientId": "GITHUB_CLIENT_ID",
+            "secret": "GITHUB_CLIENT_SECRET"
+        }
     }
 ]
