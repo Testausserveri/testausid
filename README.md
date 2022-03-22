@@ -8,7 +8,8 @@
 
 That's the general idea. The implementation though, in the terms of security, is a little more complex.
 
-For now, this project implements 2 methods of authentication, Discord and Twitter.
+For now, this project implements 2 methods of authentication, Discord and Twitter (more are being added).
+
 Twitter represents the OAuth 1.0a authentication flow and Discord the OAuth 2.0 authentication flow.
 
 **Due to the severe implications of a possible programming error or a vulnerability in a project like this, this project will remain as a demo until further notice. DO NOT USE IT IN ANY PRODUCTION ENVIRONMENT!**
@@ -25,7 +26,6 @@ You should read these before making an issue. These will be fixed/implemented as
 - Bug bounty?
 - Docker setup
 - Token revocation after authentication
-
 
 # Documentation
 This is the draft documentation for this project.
