@@ -13,7 +13,7 @@ module.exports = async (
     req, res, session, redirectURL
 ) => {
     // Get request params
-    const url = new URL(req.url, `http://${req.headers.host}`)
+    const url = new URL(req.url, `http://${req.headers.host ?? "local"}`)
     const code = url.searchParams.get("code")
     if (!code) throw new Error("safe: Missing code from query. The user might have rejected the login request.")
 

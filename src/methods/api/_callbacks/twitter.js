@@ -18,7 +18,7 @@ const request = require("../../../util/request")
  */
 module.exports = async (req, res, session) => {
     // Get request params
-    const url = new URL(req.url, `http://${req.headers.host}`)
+    const url = new URL(req.url, `http://${req.headers.host ?? "local"}`)
     const token = url.searchParams.get("oauth_token")
     if (!token) throw new Error("safe: Missing required data from the query. The user might have rejected the login request.")
     const verifier = url.searchParams.get("oauth_verifier")
