@@ -372,6 +372,8 @@ body, html {
     justify-content: center;
     height: auto;
     margin-bottom: 5%;
+    flex-wrap: wrap;
+    flex-direction: row;
 }
 
 .methods>li {
