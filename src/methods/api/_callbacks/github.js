@@ -1,9 +1,10 @@
 const getCredentials = require("../../../util/getCredentials")
 const { updateAuthenticationSession } = require("../../../database/client")
 const request = require("../../../util/request")
+const redirectWithCode = require("../../../util/redirectWithCode")
 
 /**
- * Platform OAuth x.xx callback
+ * Github OAuth 2.0 callback
  * @param {import("http").IncomingMessage} req
  * @param {import("http").ServerResponse} res
  * @param {import("../../../typings/schemas").authenticationSession} session
@@ -58,21 +59,5 @@ module.exports = async (
     })
 
     // Redirect to application
-    const newLocation = new URL(session.redirectURL)
-    newLocation.searchParams.set("code", session.code)
-    newLocation.searchParams.set("state", session.state)
-    res.writeHead(307, {
-        "Content-Type": "text/html",
-        Location: newLocation.toString()
-    })
-    res.end(`
-        <header>
-            <title>Redirecting...</title>
-        </header>
-        <body>
-            If you are not redirected, click <a href="${newLocation.toString()}">here</a>.
-            <br>
-            <i>(${newLocation.toString()})</i>
-        </body>
-    `)
+    redirectWithCode(session, res)
 }

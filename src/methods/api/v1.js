@@ -428,7 +428,10 @@ module.exports = {
                         timestamp: new Date().getTime(),
                         code
                     })
+                    // Overwrite old values, sot the session may be passed
+                    // to the callback, without having to fetch it again
                     session.code = code
+                    session.status = "completed"
                     // Send the request to the specific method callback handler
                     const method = resolveFromObject("id", session.authenticationPlatform, methods)?.name
                     if (!method) throw new Error("safe: Unknown callback method")

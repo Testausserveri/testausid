@@ -398,6 +398,11 @@ body, html {
 .methods>li:nth-last-child(-n+2) {
     margin-bottom: unset;
 }
+.methods>li:last-child:nth-child(odd) {
+    width: 100%;
+    margin-left: 15px;
+    margin-right: calc(100% - 45% - 15px - 2px);
+}
 .methods>li:hover {
     filter: brightness(0.7);
 }

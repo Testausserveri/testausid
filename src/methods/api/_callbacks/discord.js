@@ -1,5 +1,6 @@
 const { updateAuthenticationSession } = require("../../../database/client")
 const getCredentials = require("../../../util/getCredentials")
+const redirectWithCode = require("../../../util/redirectWithCode")
 const request = require("../../../util/request")
 
 /**
@@ -58,21 +59,5 @@ module.exports = async (
     })
 
     // Redirect to application
-    const newLocation = new URL(session.redirectURL)
-    newLocation.searchParams.set("code", session.code)
-    newLocation.searchParams.set("state", session.state)
-    res.writeHead(307, {
-        "Content-Type": "text/html",
-        Location: newLocation.toString()
-    })
-    res.end(`
-        <header>
-            <title>Redirecting...</title>
-        </header>
-        <body>
-            If you are not redirected, click <a href="${newLocation.toString()}">here</a>.
-            <br>
-            <i>(${newLocation.toString()})</i>
-        </body>
-    `)
+    redirectWithCode(session, res)
 }
