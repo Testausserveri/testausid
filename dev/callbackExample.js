@@ -10,5 +10,8 @@ const getCredentials = require("../../../util/getCredentials")
 module.exports = async (
     req, res, session, redirectURL
 ) => {
+    // Do stuff!
 
+    // Redirect to application
+    redirectWithCode(session, res)
 }
