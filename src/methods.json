@@ -28,5 +28,25 @@
             "clientId": "GITHUB_CLIENT_ID",
             "secret": "GITHUB_CLIENT_SECRET"
         }
+    },
+    {
+        "name": "Google",
+        "id": "6d338f9f-fb38-4d22-96fd-c515a7ae87cd",
+        "icon": "/app/assets/Google.svg",
+        "url": "https://accounts.google.com/o/oauth2/v2/auth?scope=${scopes}&include_granted_scopes=true&response_type=code&state=${state}&redirect_uri=${redirectURI}&client_id=${process.env.GOOGLE_CLIENT_ID}&approval_prompt=force",
+        "credentials": {
+            "clientId": "GOOGLE_CLIENT_ID",
+            "secret": "GOOGLE_CLIENT_SECRET"
+        }
+    },
+    {
+        "name": "Members",
+        "id": "fffe466b-f00a-4928-85e0-6b229bc368fe",
+        "icon": "/app/assets/Members.svg",
+        "url": "https://accounts.google.com/o/oauth2/v2/auth?scope=${scopes}&include_granted_scopes=true&response_type=code&state=${state}&redirect_uri=${redirectURI}&client_id=${process.env.GOOGLE_CLIENT_ID}&approval_prompt=force",
+        "credentials": {
+            "clientId": "GOOGLE_CLIENT_ID",
+            "secret": "GOOGLE_CLIENT_SECRET"
+        }
     }
 ]

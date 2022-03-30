@@ -1,7 +1,9 @@
 const scopeSeparator = {
     Discord: "%20",
     Twitter: "-",
-    Github: ", "
+    Github: ", ",
+    Google: " ",
+    Members: " "
 }
 
 const scopeConversion = {
@@ -17,6 +19,18 @@ const scopeConversion = {
         account: "read:user",
         contact: "user:email",
         security: null
+    },
+    Google: {
+        id: "openid",
+        account: "https://www.googleapis.com/auth/userinfo.profile",
+        contact: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/user.phonenumbers.read",
+        security: "https://www.googleapis.com/auth/userinfo.profile"
+    },
+    Members: {
+        id: "openid",
+        account: "https://www.googleapis.com/auth/userinfo.profile",
+        contact: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/user.phonenumbers.read",
+        security: "https://www.googleapis.com/auth/userinfo.profile"
     }
 }
 
