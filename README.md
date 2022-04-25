@@ -90,6 +90,10 @@ The API root is: `/api/v1/`
 
 Methods marked with `(private)` are only used internally.
 
+API v1 implements a standard `OAuth 2.0` authentication service, with the following configuration:
+- `GET /api/v1/authenticate` as the authorization endpoint.
+- `POST /api/v1/token` as the token retrieval endpoint.
+
 **Error format**
 ```json
 { "error": "<error description>" }
@@ -109,6 +113,25 @@ Methods marked with `(private)` are only used internally.
 
 *At least one scope must always be included*
 
+**Example flow of authentication with v1**
+1. The user is redirected to `/api/v1/authenticate?...` from the client application.
+    - A new authentication session is created in the backend (stage: `created`)*
+2. The user is automatically redirected to `/app?state=...`
+3. The user selects the platform to authenticate with.
+4. The user is redirected to `/api/v1/login?platform=...&state=...`
+    - Authentication stage changes in the backend (state: `pending`)*
+5. The user is automatically redirected to platform's login service.
+6. The user is redirected from the platform login to `/api/v1/callback` after authenticating.
+    - Authentication stage changes (stage: `completed`)*
+7. The user is redirected back to client application's callback URL with `code=...` in the request query.
+8. The client application makes a request to `/api/v1/token?code=...` and gets token
+    - Authentication stage changes in the backend (stage: `stored`)*
+9. The client application makes a request to `/api/v1/me` with token in the header: `Authentication: Bearer <token>`
+    - Authentication session is deleted
+<br>
+
+--> User has now been authenticated
+
 ### **Methods**
 
 ### `POST /token`
@@ -127,8 +150,10 @@ Content-Type: application/json
 Date: Mon, 07 Mar 2022 09:46:17 GMT
 Connection: close
 Content-Length: ...
+```
 
-{ "token": "...", expiry: "<ms>" }
+```json
+{ "token": "...", "expiry": "<ms>" }
 ```
 
 ### `GET /api/v1/application`
@@ -141,8 +166,10 @@ Content-Type: application/json
 Date: Mon, 07 Mar 2022 09:46:17 GMT
 Connection: close
 Content-Length: 107
+```
 
-{"id":"d3c89442d3574aa5bbaea011f2d43e14","name":"Test application","icon":"","homepage":"http://localhost"}
+```json
+{ "id": "d3c89442d3574aa5bbaea011f2d43e14", "name": "Test application", "icon": "","homepage": "http://localhost" }
 ```
 
 ### `GET /api/v1/methods`
@@ -155,8 +182,21 @@ Content-Type: application/json
 Date: Mon, 07 Mar 2022 09:46:16 GMT
 Connection: close
 Content-Length: 193
+```
 
-[{"name":"Discord","id":"2db260c7-8ca9-42a3-8de8-a6a3c37be89e","icon":"/app/assets/Discord.svg"},{"name":"Twitter","id":"ba8aad4d-9014-4ecc-9df3-e2d520b4c23e","icon":"/app/assets/Twitter.svg"}]
+```json
+[
+    {
+        "name": "Discord",
+        "id": "2db260c7-8ca9-42a3-8de8-a6a3c37be89e",
+        "icon": "/app/assets/Discord.svg"
+    },
+    {
+        "name": "Twitter",
+        "id": "ba8aad4d-9014-4ecc-9df3-e2d520b4c23e",
+        "icon": "/app/assets/Twitter.svg"
+    }
+]
 ```
 
 ### `GET /api/v1/authenticate`
@@ -177,7 +217,9 @@ Content-Type: text/html
 Date: Mon, 07 Mar 2022 09:46:15 GMT
 Connection: close
 Content-Length: 218
+```
 
+```html
 If you are not redirected click <a href="/app?scopes=token,id,account,contact,security&client_id=d3c89442d3574aa5bbaea011f2d43e14&state=572dd500b8c73b26b00a45693336058c&redirect_uri=http://localhost/callback">this</a>.
 ```
 
@@ -195,7 +237,9 @@ Content-Type: text/html
 Date: Mon, 07 Mar 2022 09:46:18 GMT
 Connection: close
 Content-Length: ...
+```
 
+```html
 If you are not redirected, click <a href="https://discord.com/api/oauth2/authorize?...">here</a>.
 <br>
 <i>(https://discord.com/api/oauth2/authorize?...)</i>
@@ -217,22 +261,26 @@ Content-Type: text/html
 Date: Mon, 07 Mar 2022 09:46:18 GMT
 Connection: close
 Content-Length: ...
+```
 
+```json
 {
-    ?token: "<Account access token>",
-    ?id: "<Account ID>",
-    ?name: "<Account name>",
-    ?account: "<General account information, platform specific>",
-    ?security: "<Account security information, platform specific>",
-    ?contact: "<Account contact details, platform specific>
-    scopes: String[],
-    applicationId: "<Application ID>",
-    platform: {
-        id: "<Platform ID>",
-        name: "<Platform name>"
+    "?token": "<Account access token>",
+    "?id": "<Account ID>",
+    "?name": "<Account name>",
+    "?account": "<General account information, platform specific>",
+    "?security": "<Account security information, platform specific>",
+    "?contact": "<Account contact details, platform specific>",
+    "scopes": "String[]",
+    "applicationId": "<Application ID>",
+    "platform": {
+        "id": "<Platform ID>",
+        "name": "<Platform name>"
     }
 }
 ```
+
+*The fields prefixed with ? are present/missing depending on what scopes were used. See available scopes above.*
 
 
 # Development resources and notes
@@ -246,24 +294,6 @@ About OAuth: https://aaronparecki.com/oauth-2-simplified/
 
 ## Logging errors in V1 API
 Errors thrown by methods, which begin with `safe: `, will have their message as a string in the response.
-
-## Flow
-1. User is redirected to /api/v1/authenticate?... from app
-    - A new authentication session is created (created)*
-2. User is redirected to /app?state=...
-3. User selects platform
-4. User is redirected to /api/v1/login?platform=...&state=...
-    - Authentication stage changes (pending)*
-5. User is redirected to login provider
-6. User is redirected from login provider to /api/v1/callback
-    - Authentication stage changes (completed)*
-7. User is redirected back to app with ?code=...
-8. App requests /api/v1/token?code=... and gets token
-    - Authentication stage changes (stored)*
-9. App requests /api/v1/me with token in header
-    - Authentication session is deleted
-<br>
---> User has now been authenticated
 
 **An authentication stage change defines a point of no return for the authentication flow*
 
