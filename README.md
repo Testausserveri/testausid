@@ -132,6 +132,8 @@ API v1 implements a standard `OAuth 2.0` authentication service, with the follow
 
 --> User has now been authenticated
 
+**An authentication stage change defines a point of no return for the authentication flow*
+
 ### **Methods**
 
 ### `POST /token`
@@ -294,8 +296,6 @@ About OAuth: https://aaronparecki.com/oauth-2-simplified/
 
 ## Logging errors in V1 API
 Errors thrown by methods, which begin with `safe: `, will have their message as a string in the response.
-
-**An authentication stage change defines a point of no return for the authentication flow*
 
 ## Implementation best practices - ideas
 Verifying the user used the same platform as before to authenticate is essential. Could we somehow force this check to take place? Like including the platform id within the user id? Or the platform name?
