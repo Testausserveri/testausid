@@ -125,9 +125,9 @@ async function display() {
     container.style.opacity = 1
     await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)) })
     appContent.style.opacity = 1
-    appContent.style.maxHeight = "500px"
+    appContent.style.maxHeight = "10000px" // Has to just be a big number to trigger the animation
     methods.style.opacity = 1
-    methods.style.maxHeight = "500px"
+    methods.style.maxHeight = "10000px" // Has to just be a big number to trigger the animation
 }
 
 // Fetch application information

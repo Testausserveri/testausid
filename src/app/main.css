@@ -518,6 +518,12 @@ body, html {
         margin-bottom: 2.5%;
     }
 
+    .methods>li:last-child:nth-child(odd) {
+        margin-left: initial;
+        margin-right: initial;
+        width: initial;
+    }
+
     .methods {
         flex-direction: column;
     }
