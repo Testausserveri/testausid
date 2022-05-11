@@ -17,7 +17,19 @@ function generateId() {
     return randomUUID()
 }
 
+/**
+ * Generate a random client ID
+ * @returns {String}
+ */
+function generateClientId() {
+    return new Array(2)
+        .fill(0)
+        .map(() => randomBytes(8).readBigUInt64BE(0, true).toString())
+        .join("")
+}
+
 module.exports = {
     generateRandomString,
-    generateId
+    generateId,
+    generateClientId
 }

@@ -428,7 +428,7 @@ module.exports = {
                         timestamp: new Date().getTime(),
                         code
                     })
-                    // Overwrite old values, sot the session may be passed
+                    // Overwrite old values, so the session may be passed
                     // to the callback, without having to fetch it again
                     session.code = code
                     session.status = "completed"

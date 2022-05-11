@@ -1,5 +1,5 @@
 const { connect } = require("mongoose")
-const { generateRandomString } = require("../util/generate")
+const { generateRandomString, generateClientId } = require("../util/generate")
 const { applicationRegistrationModel, authenticationSessionModel } = require("./schemas")
 
 /**
@@ -157,7 +157,7 @@ async function createApplication(
     await prepareConnection()
     if (typeof name !== "string") throw new Error("Invalid application name")
     return applicationRegistrationModel.create({
-        id: generateRandomString(16),
+        id: generateClientId(),
         secret: generateRandomString(32),
         name,
         homepage: homepage ?? "",
