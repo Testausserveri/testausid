@@ -136,7 +136,7 @@ API v1 implements a standard `OAuth 2.0` authentication service, with the follow
 
 ### **Methods**
 
-### `POST /token`
+### `POST /api/v1/token`
 Exchange the "code" for an access token to access the authenticated user's information.
 
 **Request requirements**
