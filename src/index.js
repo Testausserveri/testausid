@@ -207,15 +207,17 @@ function cli() {
                 Commands:
                 - "exit", closes the program.
                 - "help", displays this message.
-                - "createApplication <query>", create an application.
-                - "updateApplication <query>", update an application.
+                - "createApplication <name, ?icon, ?homepage, redirectURLs>*", create an application.
+                - "updateApplication <id, ?name, ?icon, ?homepage, ?redirectURLs>*", update an application.
                 - "getApplications", get all applications.
-                - "removeApplication <query>", remove an application.
+                - "removeApplication <id>*", remove an application.
+
+                * A MongoDB query
             `.split("\n").map((line) => line.trim()).join("\n"))
             break
         }
         default:
-            console.error("Unknown command. Use \"help\"")
+            console.error("Unknown command. Use \"help\" to view a list of commands.")
         }
         rl.prompt()
     })
