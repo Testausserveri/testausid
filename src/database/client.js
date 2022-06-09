@@ -2,6 +2,8 @@ const { connect } = require("mongoose")
 const { generateRandomString, generateClientId } = require("../util/generate")
 const { applicationRegistrationModel, authenticationSessionModel } = require("./schemas")
 
+const deniedQueryKeys = ["_id", "id", "secret", "__v"] // Keys that update cannot set
+
 /**
  * Connect to the database or validate the connection status
  * @returns {Promise<void>}
@@ -94,6 +96,7 @@ async function updateAuthenticationSession(query, fields) {
     await prepareConnection()
     const exists = (await authenticationSessionModel.findOne(query).exec()) !== null
     if (!exists) throw new Error("safe: Session does not exist.")
+    if (Object.keys(fields).includes(deniedQueryKeys)) throw new Error(`Cannot set any of these keys: ${deniedQueryKeys.join(". ")}`)
     return authenticationSessionModel.updateOne(query, { $set: fields })
 }
 
@@ -176,6 +179,7 @@ async function updateApplication(query, fields) {
     await prepareConnection()
     const exists = (await applicationRegistrationModel.findOne(query).exec()) !== null
     if (!exists) throw new Error("safe: Session does not exist.")
+    if (Object.keys(fields).includes(deniedQueryKeys)) throw new Error(`Cannot set any of these keys: ${deniedQueryKeys.join(". ")}`)
     return applicationRegistrationModel.updateOne(query, { $set: fields })
 }
 
