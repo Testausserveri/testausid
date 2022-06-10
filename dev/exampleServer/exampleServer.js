@@ -1,9 +1,10 @@
 const http = require("http")
 
-const clientId = "d3c89442d3574aa5bbaea011f2d43e14"
-const redirectUri = "http://idexample.testausserveri.fi"
-const secret = "572db82f6c93225138b12f4bc123f4031e1c48bf5abcd7aaa015135f14a549fe"
+const clientId = "29009777875350578869462533326609160110"
+const redirectUri = "http://localhost:80/callback"
+const secret = "b565ec644837c91f28e0948342ac1945c6a5aa93803d0cc71cdc00a83f7dedb9"
 const scopes = "id,account,contact,security"
+const OAuthHost = "http://localhost:8080"
 
 /**
  * @typedef {object} RequestResponse A request response
@@ -63,7 +64,7 @@ const Server = http.createServer(async (req, res) => {
             <h1>Testausserveri ID's server-side authorization code grant implementation example</h1>
             <p>Click the link below to begin the authentication flow</p>
             <h3>
-                <a href='http://id.testausserveri.fi/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login with Testausserveri ID</a>
+                <a href='${OAuthHost}/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login with Testausserveri ID</a>
             </h3>
         `)
     } else if (req.url.startsWith("/callback")) {
