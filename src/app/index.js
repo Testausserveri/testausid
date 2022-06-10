@@ -150,8 +150,6 @@ async function display() {
     if (!applicationReady || !methodsReady || !window.activeBrand || contentDisplayed) return
     contentDisplayed = true
     container.style.display = "flex"
-    // Todo calculate required appContent and methods size
-    console.log(await getAutoDimensions(appContent), await getAutoDimensions(methods))
     const methodsHeight = (await getAutoDimensions(methods)).height
     const appContentHeight = (await getAutoDimensions(appContent)).height + methodsHeight
     container.style.opacity = 1
