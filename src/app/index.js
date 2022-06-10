@@ -5,6 +5,8 @@ const errorText = document.getElementById("errorText")
 const footer = document.getElementById("footer")
 const originalHref = String(window.location.href)
 const useCache = localStorage.getItem("useCache") !== null
+
+// Handle cache setting
 console.log("UseCache?", useCache)
 localStorage.removeItem("useCache")
 
@@ -112,8 +114,35 @@ cancelButton.onclick = () => {
 
 // Cancel the login
 returnButton.onclick = () => {
-    if (!window.application?.homepage) return
-    window.location.href = window.application.homepage
+    if (window.application?.homepage) {
+        window.location.href = window.application.homepage
+    } else {
+        const returnURL = new URL(document.referrer)
+        // eslint-disable-next-line no-restricted-globals
+        if (confirm(`Do you want to be returned to ${returnURL.hostname}?`)) window.location.href = document.referrer
+    }
+}
+
+/**
+ * Get an elements automatic dimensions
+ * @param {HTMLElement} element
+ * @returns {Promise<{ height: number, width: number }>}
+ */
+function getAutoDimensions(element) {
+    return new Promise((resolve) => {
+        const valuesToFlip = ["maxWith", "maxHeight", "height", "width"]
+        const valueCache = JSON.parse(JSON.stringify(element.style)) // Forces a clone
+        for (const value of valuesToFlip) element.style[value] = "unset"
+        element.style.opacity = "0"
+        // eslint-disable-next-line no-loop-func
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            const dimensions = element.getBoundingClientRect()
+            element.style.opacity = valueCache.opacity ?? ""
+            for (const value of valuesToFlip.map((key) => [key, valueCache[key]])) element.style[value[0]] = value[1] ?? "unset"
+            if (!valueCache.opacity) element.style.opacity = "unset"
+            requestAnimationFrame(() => requestAnimationFrame(() => { resolve({ height: dimensions.height, width: dimensions.width }) }))
+        }))
+    })
 }
 
 // Display the app content
@@ -121,13 +150,15 @@ async function display() {
     if (!applicationReady || !methodsReady || !window.activeBrand || contentDisplayed) return
     contentDisplayed = true
     container.style.display = "flex"
-    await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)) })
+    // Todo calculate required appContent and methods size
+    console.log(await getAutoDimensions(appContent), await getAutoDimensions(methods))
+    const methodsHeight = (await getAutoDimensions(methods)).height
+    const appContentHeight = (await getAutoDimensions(appContent)).height + methodsHeight
     container.style.opacity = 1
-    await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)) })
     appContent.style.opacity = 1
-    appContent.style.maxHeight = "10000px" // Has to just be a big number to trigger the animation
     methods.style.opacity = 1
-    methods.style.maxHeight = "10000px" // Has to just be a big number to trigger the animation
+    appContent.style.maxHeight = `${appContentHeight}px`
+    methods.style.maxHeight = `${methodsHeight}px`
 }
 
 // Fetch application information
