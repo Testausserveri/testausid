@@ -1,10 +1,12 @@
 const http = require("http")
 
+// General configuration
 const clientId = "29009777875350578869462533326609160110"
 const redirectUri = "http://localhost:80/callback"
 const secret = "b565ec644837c91f28e0948342ac1945c6a5aa93803d0cc71cdc00a83f7dedb9"
 const scopes = "id,account,contact,security"
 const OAuthHost = "http://localhost:8080"
+const port = 80
 
 /**
  * @typedef {object} RequestResponse A request response
@@ -55,8 +57,8 @@ async function request(
     })
 }
 
-const Server = http.createServer(async (req, res) => {
-    if (req.url === "/") {
+const Server = http.createServer(async (req, res) => { // Create a simple HTTP server
+    if (req.url === "/") { // In the / url, we respond with a login link to Testausserveri ID
         res.writeHead(200, {
             "Content-Type": "text/html"
         })
@@ -64,34 +66,39 @@ const Server = http.createServer(async (req, res) => {
             <h1>Testausserveri ID's server-side authorization code grant implementation example</h1>
             <p>Click the link below to begin the authentication flow</p>
             <h3>
+                <!-- Login link below, values from configuration at the top of the server file -->
                 <a href='${OAuthHost}/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login with Testausserveri ID</a>
             </h3>
         `)
-    } else if (req.url.startsWith("/callback")) {
+    } else if (req.url.startsWith("/callback")) { // In the /callback url, we handle a redirection after a successful login
         try {
             const url = new URL(req.url, `http://${req.headers.host}/`)
-            const code = url.searchParams.get("code")
+            const code = url.searchParams.get("code") // The code query parameter is our one-time key to get ourselves and access token
+            // We construct a HTTP POST request with the request body containing data encoded in application/x-www-form-urlencoded
             const tokenParams = new URLSearchParams()
-            tokenParams.append("client_id", clientId)
-            tokenParams.append("client_secret", secret)
-            tokenParams.append("grant_type", "authorization_code")
-            tokenParams.append("code", code)
-            tokenParams.append("redirect_uri", redirectUri)
+            tokenParams.append("client_id", clientId) // Constant
+            tokenParams.append("client_secret", secret) // Constant
+            tokenParams.append("grant_type", "authorization_code") // Constant
+            tokenParams.append("code", code) // The one-time key from the redirection
+            tokenParams.append("redirect_uri", redirectUri) // Constant
             const token = await request(
                 "POST", "http://localhost:7080/api/v1/token", {
                     "Content-Type": "application/x-www-form-urlencoded"
                 }, tokenParams.toString()
             )
             if (token.status !== 200) throw new Error("Failed to fetch token", token)
+            // We get a response as JSON. Next we will read the user's information from the OAuth server at /api/v1/me
             const tokenData = JSON.parse(token.data)
             const me = await request("GET", "http://localhost:7080/api/v1/me", {
                 Authorization: `Bearer ${tokenData.token}`
             })
             if (me.status !== 200) throw new Error("Failed to fetch user data", me)
+            // We get the user info as
             const userData = JSON.parse(me.data)
             res.writeHead(200, {
                 "Content-Type": "text/html"
             })
+            // Here we just dump the user info to the server response, you may use it how you please.
             res.write(`
                 <h1>You are now logged in!</h1>
                 <h2>User information</h2>
@@ -101,6 +108,7 @@ const Server = http.createServer(async (req, res) => {
                 </p>
             `)
         } catch (e) {
+            // Handle an unexpected server error
             console.error("Callback error", e)
             if (!res.headersSent && res.writable) {
                 res.writeHead(500, {
@@ -118,14 +126,14 @@ const Server = http.createServer(async (req, res) => {
         }
     }
 
-    if (!res.headersSent) {
+    if (!res.headersSent) { // Not found error message
         res.writeHead(404)
         res.write("Not found.")
     }
 
-    res.end()
+    res.end() // End the response
 })
 
-Server.listen(80, async () => {
-    console.log("Example online!")
+Server.listen(port, async () => { // Start the server
+    console.log(`Example online at http://127.0.0.1:${port}/`)
 })
