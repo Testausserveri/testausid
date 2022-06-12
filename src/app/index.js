@@ -157,6 +157,10 @@ async function display() {
     methods.style.opacity = 1
     appContent.style.maxHeight = `${appContentHeight}px`
     methods.style.maxHeight = `${methodsHeight}px`
+    setTimeout(() => {
+        appContent.style.maxHeight = ""
+        methods.style.maxHeight = ""
+    }, 200)
 }
 
 // Fetch application information

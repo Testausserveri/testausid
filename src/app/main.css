@@ -4,6 +4,11 @@
     font-display: swap
 }
 @font-face {
+    font-family: "Ubuntu";
+    src: url("/app/assets/Ubuntu.woff2") format("woff");
+    font-display: swap
+}
+@font-face {
     font-family: "Poppins";
     src: url("/app/assets/poppins.woff2") format("woff");
     font-display: swap
@@ -502,6 +507,13 @@ body, html {
 @media (min-width: 1050px) and (max-height: 820px) {
     .container {
         min-height: 740px;
+    }
+}
+
+@media (max-height: 430px) {
+    .loadingBox {
+        padding-top: 84px;
+        top: 84px;
     }
 }
 
