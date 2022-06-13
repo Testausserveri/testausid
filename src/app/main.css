@@ -440,7 +440,7 @@ body, html {
 
 /* App footer */
 .app .footer {
-    width: 100%;
+    width: 90%;
     margin-left: 5%;
     margin-right: 5%;
     margin-bottom: 5%;
@@ -533,7 +533,7 @@ body, html {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 490px) {
     .methods>li {
         width: 100%;
         margin-right: unset;
