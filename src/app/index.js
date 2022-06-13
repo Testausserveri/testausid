@@ -155,11 +155,13 @@ async function display() {
     container.style.opacity = 1
     appContent.style.opacity = 1
     methods.style.opacity = 1
+    methods.style.overflowX = "hidden"
     appContent.style.maxHeight = `${appContentHeight}px`
     methods.style.maxHeight = `${methodsHeight}px`
     setTimeout(() => {
         appContent.style.maxHeight = ""
         methods.style.maxHeight = ""
+        methods.style.overflowX = ""
     }, 200)
 }
 
