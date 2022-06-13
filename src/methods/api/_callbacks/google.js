@@ -49,7 +49,6 @@ module.exports = async (
         Authorization: `${tokenExchangeData.token_type} ${tokenExchangeData.access_token}`,
         "User-agent": "NodeJS-HTTP" // Has to be set on Google API GET requests (to something)
     })
-    console.debug("USER", user)
     if (user.status !== 200) throw new Error("safe: Unable to get account information.")
     const userInfo = JSON.parse(user.data)
 
