@@ -52,10 +52,16 @@ Command usage and definitions can be viewed with the `help` command.
 Commands:
 - "exit", closes the program.
 - "help", displays this message.
-- "createApplication <query>", create an application.
-- "updateApplication <query>", update an application.
+- "createApplication <MongoDB JSON query>", create an application.
+    - name: string
+    - homepage: string
+    - icon: base64 image string
+    - redirectURLS: string[]
+- "updateApplication <MongoDB JSON query>", update an application.
+    - identical with createApplication
 - "getApplications", get all applications.
-- "removeApplication <query>", remove an application.
+- "removeApplication <MongoDB JSON query>", remove an application.
+    - id: string
 ```
 
 ### Project structure
