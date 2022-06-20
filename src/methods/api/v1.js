@@ -202,7 +202,7 @@ module.exports = {
                     "Content-Type": "application/json"
                 })
                 res.end(JSON.stringify(methods.map((method) => ({
-                    name: method.name,
+                    name: method.prettyName ?? method.name,
                     id: method.id,
                     icon: method.icon
                 }))))
