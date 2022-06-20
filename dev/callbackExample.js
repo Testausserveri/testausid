@@ -1,4 +1,7 @@
 const getCredentials = require("../../../util/getCredentials")
+const redirectWithCode = require("../../../util/redirectWithCode")
+const request = require("../../../util/request")
+const { updateAuthenticationSession } = require("../../../database/client")
 
 /**
  * Platform OAuth x.xx callback
