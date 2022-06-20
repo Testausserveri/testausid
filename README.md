@@ -318,6 +318,7 @@ Here's a step-by-step guide on how to do that.
     ```json
         {
             "name": "Example",
+            "prettyName": "Optional pretty name with spaces and stuff",
             "id": "<Random uuidV4>",
             "icon": "/app/assets/<name>.svg",
             "url": "https://example.com/login/oauth/authorize?scope=${scopes}&client_id=${process.env.EXAMPLE_CLIENT_ID}&redirect_uri=${redirectURI}%3Fstate=${state}",
