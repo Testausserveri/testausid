@@ -3,7 +3,8 @@ const scopeSeparator = {
     Twitter: "-",
     Github: ", ",
     Google: " ",
-    Members: " "
+    Members: " ",
+    WilmaPlus: " "
 }
 
 const scopeConversion = {
@@ -31,6 +32,12 @@ const scopeConversion = {
         account: "https://www.googleapis.com/auth/userinfo.profile",
         contact: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/user.phonenumbers.read",
         security: "https://www.googleapis.com/auth/userinfo.profile"
+    },
+    WilmaPlus: {
+        id: "openid",
+        account: "profile",
+        contact: "email",
+        security: null
     }
 }
 
@@ -49,8 +56,8 @@ const removeLessValuable = {
  * @returns {string}
  */
 module.exports = (platform, sessionScopes) => {
-    if (!scopeConversion[platform]) throw new Error("Unknown platform given")
-    if (!scopeSeparator[platform]) throw new Error("No scope separator defined for the the given platform")
+    if (!scopeConversion[platform]) throw new Error(`Unknown platform given: "${platform}"`)
+    if (!scopeSeparator[platform]) throw new Error(`No scope separator defined for the the given platform: "${platform}"`)
     return sessionScopes
         .map((scope) => scopeConversion[platform][scope])
         // .map((scope, _, scopes) => (Object.keys(removeLessValuable[platform]).includes(scope) && scopes.includes(removeLessValuable[platform][scope]) ? null : scope))

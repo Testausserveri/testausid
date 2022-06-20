@@ -48,5 +48,16 @@
             "clientId": "GOOGLE_CLIENT_ID",
             "secret": "GOOGLE_CLIENT_SECRET"
         }
+    },
+    {
+        "name": "WilmaPlus",
+        "prettyName": "Wilma Plus",
+        "id": "719f348e-7d3d-4eee-8be1-f3079b38fe63",
+        "icon": "/app/assets/WilmaPlus.svg",
+        "url": "https://tunnistautuminen.wilmaplus.fi/oauth/authorize?scope=${scopes}&response_type=code&state=${state}&redirect_uri=${redirectURI}&client_id=${process.env.WILMAPLUS_CLIENT_ID}",
+        "credentials": {
+            "clientId": "WILMAPLUS_CLIENT_ID",
+            "secret": "WILMAPLUS_CLIENT_SECRET"
+        }
     }
 ]
