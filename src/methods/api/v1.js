@@ -444,7 +444,16 @@ module.exports = {
                 }
             } else if (url.pathname === "/api/v1/me") { // Get user info with token
                 // Get token
-                const token = req.headers.authorization
+                const token = req.headers.authorization ?? ""
+                if (token === "") {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Authorization header empty or not present"
+                    }))
+                    return
+                }
                 if (!token.startsWith("Bearer ")) {
                     res.writeHead(400, {
                         "Content-Type": "application/json"
