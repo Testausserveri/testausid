@@ -189,7 +189,8 @@ module.exports = {
                 let application = await getApplication(applicationId)
                 if (application === null) application = {}
                 res.writeHead(200, {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
                 })
                 res.end(JSON.stringify({
                     id: application.id,
@@ -199,7 +200,8 @@ module.exports = {
                 }))
             } else if (url.pathname === "/api/v1/methods") { // Get login methods
                 res.writeHead(200, {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
                 })
                 res.end(JSON.stringify(methods.map((method) => ({
                     name: method.prettyName ?? method.name,
