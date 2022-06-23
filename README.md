@@ -257,6 +257,35 @@ If you are not redirected, click <a href="https://discord.com/api/oauth2/authori
 ### `GET /api/v1/callback` (private)
 The callback url from the selected authentication method. Request requirements are method specific. Responses are method specific. See `/src/methods/api/_callbacks/`.
 
+### `POST /api/v1/request_token`
+Create an authentication session with scopes and allowed methods configured server-side.
+
+This somewhat imitates the OAuth 1.0a authorization flow.
+
+**Request requirements**
+- The request headers must include the client secret token as "Bearer" (`Bearer <token>`).
+- Header "Content-Type" must be "application/x-www-form-urlencoded"
+- The request body must include parameters
+    - redirect_uri
+    - scope (authentication scopes)
+    - methods (list of method IDs see /api/v1/methods for more details)
+
+**Optional**
+- The request body may include the `state` parameter to identify the session callback later on in the authentication flow.
+
+**Example response**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 07 Mar 2022 09:46:17 GMT
+Connection: close
+Content-Length: ...
+```
+
+```json
+{ "oauth_token": "..." }
+```
+
 ### `GET /api/v1/me`
 Get information about the logged-in user.
 

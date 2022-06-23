@@ -36,12 +36,12 @@ async function prepareConnection() {
 
 /**
  * Get application data
- * @param {string} id Application id
+ * @param {string|object} query Application id or query
  * @returns {Promise<import("../typings/schemas").applicationRegistration>}
  */
-async function getApplication(id) {
+async function getApplication(query) {
     await prepareConnection()
-    return applicationRegistrationModel.findOne({ id }).exec()
+    return applicationRegistrationModel.findOne(typeof query === "string" ? { id: query } : query).exec()
 }
 
 const allowedScopes = ["token", "id", "account", "contact", "security"]
@@ -54,10 +54,12 @@ const allowedScopes = ["token", "id", "account", "contact", "security"]
  * @param {String} state Application generated state
  * @param {String} internalState Internal authentication state
  * @param {String} redirectId Method selection redirect id
+ * @param {String} oauthToken Predefined session oauth token
+ * @param {String} allowedMethods Predefined session methods
  * @returns {Promise<any>}
  */
 async function createAuthenticationSession(
-    applicationId, scopes, redirectURL, state, internalState, redirectId
+    applicationId, scopes, redirectURL, state, internalState, redirectId, oauthToken, allowedMethods
 ) {
     await prepareConnection()
     const application = await getApplication(applicationId)
@@ -66,6 +68,8 @@ async function createAuthenticationSession(
     if (!application.redirectURLs.includes(redirectURL)) throw new Error("safe: Unknown redirect URL")
     const invalidScopes = scopes.filter((scope) => !allowedScopes.includes(scope))
     if (invalidScopes.length !== 0) throw new Error(`safe: Invalid scopes: ${invalidScopes.join(",")}. Allowed: ${allowedScopes.join(",")}`)
+    // eslint-disable-next-line no-param-reassign
+    if (!allowedMethods) allowedMethods = ["*"]
     return authenticationSessionModel.create({
         applicationId: application.id,
         redirectURL,
@@ -77,6 +81,8 @@ async function createAuthenticationSession(
         code: null,
         token: null,
         scopes,
+        allowedMethods,
+        oauthToken,
         user: {
             name: null,
             id: null,

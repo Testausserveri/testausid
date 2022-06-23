@@ -20,7 +20,7 @@ const port = 80
  * @param {string} method The request method
  * @param {string} url The request url
  * @param {string} body The request body
- * @returns {RequestResponse}
+ * @returns {Promise<RequestResponse>}
  */
 async function request(
     method, url, headers, body
@@ -68,6 +68,8 @@ const Server = http.createServer(async (req, res) => { // Create a simple HTTP s
             <h3>
                 <!-- Login link below, values from configuration at the top of the server file -->
                 <a href='${OAuthHost}/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login with Testausserveri ID</a>
+                <br>
+                <a href='/requestTokenFlow'>Login with Testausserveri ID with predefined methods & scopes</a>
             </h3>
         `)
     } else if (req.url.startsWith("/callback")) { // In the /callback url, we handle a redirection after a successful login
@@ -82,14 +84,14 @@ const Server = http.createServer(async (req, res) => { // Create a simple HTTP s
             tokenParams.append("code", code) // The one-time key from the redirection
             tokenParams.append("redirect_uri", redirectUri) // Constant
             const token = await request(
-                "POST", "http://localhost:7080/api/v1/token", {
+                "POST", `${OAuthHost}/api/v1/token`, {
                     "Content-Type": "application/x-www-form-urlencoded"
                 }, tokenParams.toString()
             )
             if (token.status !== 200) throw new Error("Failed to fetch token", token)
             // We get a response as JSON. Next we will read the user's information from the OAuth server at /api/v1/me
             const tokenData = JSON.parse(token.data)
-            const me = await request("GET", "http://localhost:7080/api/v1/me", {
+            const me = await request("GET", `${OAuthHost}/api/v1/me`, {
                 Authorization: `Bearer ${tokenData.token}`
             })
             if (me.status !== 200) throw new Error("Failed to fetch user data", me)
@@ -104,7 +106,7 @@ const Server = http.createServer(async (req, res) => { // Create a simple HTTP s
                 <h2>User information</h2>
                 <p>${JSON.stringify(userData, null, 2)}</p>
                 <p>
-                    <a href='http://localhost:7080/api/v1/authenticate?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}&response_type=code'>Login in again with Testausserveri ID</a>
+                    <a href='/'>Return to homepage</a>
                 </p>
             `)
         } catch (e) {
@@ -123,6 +125,28 @@ const Server = http.createServer(async (req, res) => { // Create a simple HTTP s
                     </h3>
                 `)
             }
+        }
+    } else if (req.url.startsWith("/requestTokenFlow")) { // Make a request beforehand the authentication to set allowed methods and force scopes
+        // Create request params
+        const params = new URLSearchParams()
+        params.set("redirect_uri", redirectUri)
+        params.set("scope", scopes)
+        // Discord & Twitter, get list of method IDs with /api/v1/methods
+        params.set("methods", "2db260c7-8ca9-42a3-8de8-a6a3c37be89e,ba8aad4d-9014-4ecc-9df3-e2d520b4c23e")
+        const tokenRequest = await request("POST", `${OAuthHost}/api/v1/request_token`, {
+            Authorization: `Bearer ${secret}`,
+            "Content-Type": "application/x-www-form-urlencoded"
+        }, params.toString())
+        if (tokenRequest.status !== 200) {
+            console.error("Failed to get request token: ", tokenRequest.data.toString())
+            res.writeHead(400)
+            res.write("Unable get create request token. More information in the server console.")
+        } else {
+            // Redirect with the oauth token
+            res.writeHead(307, {
+                Location: `${OAuthHost}/api/v1/authenticate?oauth_token=${JSON.parse(tokenRequest.data.toString()).oauth_token}`
+            })
+            res.write("Redirecting...")
         }
     }
 

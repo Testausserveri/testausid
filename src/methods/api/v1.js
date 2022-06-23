@@ -180,6 +180,136 @@ module.exports = {
                     console.error("Token", e)
                     handleError(e, res)
                 }
+            } else if (url.pathname === "/api/v1/request_token") { // Backend begins authentication session flow
+                // Verify client authorization
+                const token = req.headers?.authorization ?? ""
+                if (token === "") {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Missing or invalid authorization header"
+                    }))
+                    return
+                }
+                if (!token.startsWith("Bearer")) {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Authorization must be type of \"Bearer\""
+                    }))
+                    return
+                }
+                const application = await getApplication({ secret: token.replace("Bearer ", "") })
+                if (!application) {
+                    res.writeHead(401, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Invalid token"
+                    }))
+                    return
+                }
+
+                // Get input params
+                if (req.headers["content-type"] !== "application/x-www-form-urlencoded") {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Invalid content-type header"
+                    }))
+                    return
+                }
+
+                // Get the request body
+                const bodyBuffer = []
+                req.on("data", (chunk) => bodyBuffer.push(chunk))
+                await new Promise((resolve) => { req.on("end", resolve) })
+                const body = Buffer.concat(bodyBuffer).toString()
+
+                // Parse params
+                let searchParams
+                try {
+                    searchParams = new URLSearchParams(body)
+                } catch (e) {
+                    console.error("SearchParams", e)
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Invalid request body"
+                    }))
+                    return
+                }
+                const redirectURL = decodeURIComponent(searchParams.get("redirect_uri") ?? "")
+                const state = searchParams.get("state")
+                const scopes = (searchParams.get("scope") ?? "").split(",") // Comma separated
+                const allowedMethods = (searchParams.get("methods") ?? "").split(",") // Comma separated
+
+                // Verify configuration
+                if (!application.redirectURLs.includes(redirectURL)) { // redirectURL must be valid
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "Invalid redirect_uri"
+                    }))
+                    return
+                }
+                if (scopes.length < 1) { // There must be scope(s)
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "At least one scope required"
+                    }))
+                    return
+                }
+                if (allowedMethods.length < 1) { // There must be method(s)
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "At least one method required"
+                    }))
+                    return
+                }
+                if (allowedMethods // All methods must be valid
+                    .map((method) => resolveFromObject("id", method, methods))
+                    .filter((result) => !result).length !== 0
+                ) {
+                    res.writeHead(400, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        error: "One or more provided method IDs are invalid"
+                    }))
+                    return
+                }
+
+                // Generate identifiers for the authentication session and the redirect
+                const internalState = generateRandomString(32)
+                const redirectId = generateRandomString(16)
+                const oauthToken = generateRandomString(16)
+
+                // Create the authentication session
+                try {
+                    await createAuthenticationSession(
+                        application.id, scopes, redirectURL, state, internalState, redirectId, oauthToken, allowedMethods
+                    )
+                    // Redirect user to login
+                    res.writeHead(200, {
+                        "Content-Type": "application/json"
+                    })
+                    res.end(JSON.stringify({
+                        oauth_token: oauthToken
+                    }))
+                } catch (e) {
+                    console.error("Request_token", e)
+                    handleError(e, res)
+                }
             } else {
                 next()
             }
@@ -209,6 +339,44 @@ module.exports = {
                     icon: method.icon
                 }))))
             } else if (url.pathname === "/api/v1/authenticate") { // Start authentication session
+                // Check if we have a request token and that a session has already been created
+                const oauthToken = url.searchParams.get("oauth_token") ?? ""
+                if (oauthToken !== "") {
+                    const predefinedSession = await getAuthenticationSession({ oauthToken })
+                    if (!predefinedSession) {
+                        res.writeHead(401, {
+                            "Content-Type": "application/json"
+                        })
+                        res.end(JSON.stringify({
+                            error: "Invalid or expired authentication session"
+                        }))
+                        return
+                    }
+                    // Redirect user to login
+                    const query = `scopes=${predefinedSession.scopes.join(",")}
+                        &client_id=${predefinedSession.applicationId}
+                        &state=${predefinedSession.redirectId}
+                        &redirect_uri=${predefinedSession.redirectURL}
+                        &methods=${predefinedSession.allowedMethods.join(",")}`
+                        .replace(/\n/g, "").replace(/ /g, "")
+                    res.writeHead(307, {
+                        Location: `/app?${query}`,
+                        "Content-Type": "text/html"
+                    })
+                    res.end(`
+                        <header>
+                            <title>Redirecting...</title>
+                        </header>
+                        <body>
+                            If you are not redirected, click <a href="/app?${query}">here</a>.
+                            <br>
+                            <i>(/app?${query})</i>
+                        </body>
+                    `)
+                    return
+                }
+                // --> Continue with normal OAuth 2.0 /authenticate flow
+
                 // Only code authentication is allowed
                 if (url.searchParams.get("response_type") !== "code") {
                     res.writeHead(400, {
@@ -220,24 +388,23 @@ module.exports = {
                     return
                 }
 
-                // Get inputs
+                // Get configuration
                 const applicationId = url.searchParams.get("client_id") ?? ""
                 const redirectURL = decodeURIComponent(url.searchParams.get("redirect_uri") ?? "")
                 const state = url.searchParams.get("state")
                 const scopes = (url.searchParams.get("scope") ?? "").split(",") // Comma separated
 
-                // There has to be scopes
-                if (scopes.length < 1 && scopes[0] === "") {
+                // Verify configuration
+                if (scopes.length < 1) { // There has to be scopes
                     res.writeHead(400, {
                         "Content-Type": "application/json"
                     })
                     res.end(JSON.stringify({
-                        error: "Only accepted response_type is \"code\""
+                        error: "At least one scope required"
                     }))
                     return
                 }
-                // Application id is required
-                if (applicationId === "") {
+                if (applicationId === "") { // Application id is required
                     res.writeHead(400, {
                         "Content-Type": "application/json"
                     })
@@ -246,8 +413,7 @@ module.exports = {
                     }))
                     return
                 }
-                // Redirect url is required
-                if (redirectURL === "") {
+                if (redirectURL === "") { // Redirect url is required
                     res.writeHead(400, {
                         "Content-Type": "application/json"
                     })
@@ -355,6 +521,17 @@ module.exports = {
                         }))
                         return
                     }
+                    // Make sure we are using an allowed method
+                    console.debug(session)
+                    if (session.allowedMethods[0] !== "*" && !session.allowedMethods.includes(method)) {
+                        res.writeHead(401, {
+                            "Content-Type": "application/json"
+                        })
+                        res.end(JSON.stringify({
+                            error: "Method not accepted"
+                        }))
+                        return
+                    }
                     await updateAuthenticationSession({ redirectId }, {
                         status: "pending",
                         authenticationPlatform: methodObject.id,
@@ -445,7 +622,7 @@ module.exports = {
                     handleError(e, res)
                 }
             } else if (url.pathname === "/api/v1/me") { // Get user info with token
-                // Get token
+                // Get token and verify it
                 const token = req.headers.authorization ?? ""
                 if (token === "") {
                     res.writeHead(400, {

@@ -155,13 +155,13 @@ async function display() {
     container.style.opacity = 1
     appContent.style.opacity = 1
     methods.style.opacity = 1
-    methods.style.overflowX = "hidden"
+    methods.style.overflow = "hidden"
     appContent.style.maxHeight = `${appContentHeight}px`
     methods.style.maxHeight = `${methodsHeight}px`
     setTimeout(() => {
         appContent.style.maxHeight = ""
         methods.style.maxHeight = ""
-        methods.style.overflowX = ""
+        methods.style.overflow = ""
     }, 200)
 }
 
@@ -272,6 +272,9 @@ if (useCache) {
 methods.style.maxHeight = "0px"
 methods.style.opacity = 0
 function processMethods(data) {
+    const allowed = getQueryParam("methods")
+    // eslint-disable-next-line no-param-reassign
+    if (allowed) data = data.filter((method) => allowed.split(",").includes(method.id))
     localStorage.setItem("methodsCache", JSON.stringify(data))
     for (const method of data) {
         const li = document.createElement("li")
