@@ -23,7 +23,8 @@ module.exports = {
                 "GET /api/v1/methods",
                 "GET /api/v1/login",
                 "GET /api/v1/callback",
-                "GET /api/v1/me"
+                "GET /api/v1/me",
+                "POST /api/v1/request_token"
             ]
         }))
     }
