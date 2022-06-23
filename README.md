@@ -168,6 +168,9 @@ Content-Length: ...
 ### `GET /api/v1/application`
 Retrieve information about a registered application. Displayed during the login process.
 
+**Request requirements**
+- The request query parameters must contain "client_id" as the application's ID to query.
+
 **Example response**
 ```http
 HTTP/1.1 200 OK
