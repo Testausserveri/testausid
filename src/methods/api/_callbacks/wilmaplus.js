@@ -1,5 +1,5 @@
 const getCredentials = require("../../../util/getCredentials")
-const redirectWithCode = require("../../../util/redirectWithCode")
+const callbackRedirect = require("../../../util/callbackRedirect")
 const { updateAuthenticationSession } = require("../../../database/client")
 const request = require("../../../util/request")
 
@@ -57,5 +57,5 @@ module.exports = async (
     })
 
     // Redirect to application
-    redirectWithCode(session, res)
+    await callbackRedirect(session, res)
 }

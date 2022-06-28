@@ -25,18 +25,21 @@ const redirectUrl = `${process.env.REDIRECTBASE ?? "http://localhost:7080"}/api/
  * Handle server error
  * @param {Error} err
  * @param {import("http").ServerResponse} res
+ * @param {Boolean} noCors Should we disable cors?
  */
-async function handleError(err, res) {
+async function handleError(err, res, noCors) {
     if (err.toString().replace("Error: ", "").startsWith("safe: ")) {
         res.writeHead(400, {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": noCors ? "*" : "testausserveri.fi"
         })
         res.end(JSON.stringify({
             error: err.toString().replace("safe: ", "")
         }))
     } else {
         res.writeHead(500, {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": noCors ? "*" : "testausserveri.fi"
         })
         res.end(JSON.stringify({
             error: "Unexpected internal server error"
@@ -377,27 +380,28 @@ module.exports = {
                 }
                 // --> Continue with normal OAuth 2.0 /authenticate flow
 
-                // Only code authentication is allowed
-                if (url.searchParams.get("response_type") !== "code") {
+                // Get configuration
+                const applicationId = url.searchParams.get("client_id") ?? ""
+                const redirectURL = decodeURIComponent(url.searchParams.get("redirect_uri") ?? "")
+                const state = url.searchParams.get("state")
+                const scopes = (url.searchParams.get("scope") ?? "").split(",") // Comma separated
+                const responseType = url.searchParams.get("response_type")
+
+                // Verify configuration
+                if (!["token", "code"].includes(responseType)) { // Only code & token  authentication is allowed
                     res.writeHead(400, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         error: "Only accepted response_type is \"code\""
                     }))
                     return
                 }
-
-                // Get configuration
-                const applicationId = url.searchParams.get("client_id") ?? ""
-                const redirectURL = decodeURIComponent(url.searchParams.get("redirect_uri") ?? "")
-                const state = url.searchParams.get("state")
-                const scopes = (url.searchParams.get("scope") ?? "").split(",") // Comma separated
-
-                // Verify configuration
                 if (scopes.length < 1) { // There has to be scopes
                     res.writeHead(400, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         error: "At least one scope required"
@@ -406,7 +410,8 @@ module.exports = {
                 }
                 if (applicationId === "") { // Application id is required
                     res.writeHead(400, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         error: "\"client_id\" is required"
@@ -415,10 +420,21 @@ module.exports = {
                 }
                 if (redirectURL === "") { // Redirect url is required
                     res.writeHead(400, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         error: "\"redirect_uri\" is required"
+                    }))
+                    return
+                }
+                if (url.searchParams.get("response_type") === "token" && scopes.includes("token")) { // For now the token scope is not allowed with token auth
+                    res.writeHead(401, {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
+                    })
+                    res.end(JSON.stringify({
+                        error: "\"token\" is scope cannot be used with \"response_type\" as \"token\""
                     }))
                     return
                 }
@@ -433,7 +449,8 @@ module.exports = {
                     const application = await getApplication(applicationId)
                     if (application === null) {
                         res.writeHead(400, {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*"
                         })
                         res.end(JSON.stringify({
                             error: "Invalid client_id"
@@ -442,7 +459,8 @@ module.exports = {
                     }
                     if (!application.redirectURLs.includes(redirectURL)) {
                         res.writeHead(400, {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*"
                         })
                         res.end(JSON.stringify({
                             error: "Invalid redirect_uri"
@@ -451,13 +469,14 @@ module.exports = {
                     }
                     // Create authentication session
                     await createAuthenticationSession(
-                        applicationId, scopes, redirectURL, state, internalState, redirectId
+                        applicationId, scopes, redirectURL, state, internalState, redirectId, undefined, undefined, responseType
                     )
                     // Redirect user to login
                     const query = `scopes=${scopes.join(",")}&client_id=${applicationId}&state=${redirectId}&redirect_uri=${redirectURL}`
-                    res.writeHead(307, {
-                        Location: `/app?${query}`,
-                        "Content-Type": "text/html"
+                    res.writeHead(url.searchParams.has("noRedirect") ? 200 : 307, {
+                        [url.searchParams.has("noRedirect") ? "x-Location" : "Location"]: `/app?${query}`,
+                        "Content-Type": "text/html",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(`
                         <header>
@@ -471,7 +490,7 @@ module.exports = {
                     `)
                 } catch (e) {
                     console.error("Authenticate", e)
-                    handleError(e, res)
+                    handleError(e, res, true)
                 }
             } else if (url.pathname === "/api/v1/login") { // Redirect user to oauth login
                 // Verify required parameters exist
@@ -522,7 +541,6 @@ module.exports = {
                         return
                     }
                     // Make sure we are using an allowed method
-                    console.debug(session)
                     if (session.allowedMethods[0] !== "*" && !session.allowedMethods.includes(method)) {
                         res.writeHead(401, {
                             "Content-Type": "application/json"
@@ -626,7 +644,8 @@ module.exports = {
                 const token = req.headers.authorization ?? ""
                 if (token === "") {
                     res.writeHead(400, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         error: "Authorization header empty or not present"
@@ -635,7 +654,8 @@ module.exports = {
                 }
                 if (!token.startsWith("Bearer ")) {
                     res.writeHead(400, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         error: "Authorization must be type of \"Bearer\""
@@ -647,7 +667,8 @@ module.exports = {
                     const session = await getAuthenticationSession({ token: token.replace("Bearer ", "") })
                     if (!session) {
                         res.writeHead(401, {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*"
                         })
                         res.end(JSON.stringify({
                             error: "Invalid token"
@@ -657,7 +678,8 @@ module.exports = {
                     // Make sure we are in the desired stage
                     if (session.status !== "stored") {
                         res.writeHead(401, {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*"
                         })
                         res.end(JSON.stringify({
                             error: "Invalid or expired authentication session"
@@ -668,7 +690,8 @@ module.exports = {
                     await removeAuthenticationSession({ internalState: session.internalState })
                     // Respond with user information
                     res.writeHead(200, {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*"
                     })
                     res.end(JSON.stringify({
                         token: session.scopes.includes("token") ? session.user.token : undefined,
@@ -686,10 +709,18 @@ module.exports = {
                     }))
                 } catch (e) {
                     console.error("User", e)
-                    handleError(e, res)
+                    handleError(e, res, true)
                 }
             } else {
                 next()
+            }
+        } else if (req.method === "OPTIONS") {
+            if (url.pathname === "/api/v1/me") { // CORS requires this
+                res.writeHead(200, {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "authorization"
+                })
+                res.end()
             }
         } else {
             next()

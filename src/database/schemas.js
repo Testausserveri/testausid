@@ -26,6 +26,7 @@ const authenticationSessionModel = model("authenticationRegistrationModel",
         scopes: Array,
         allowedMethods: Array,
         oauthToken: String,
+        responseType: String,
         user: {
             name: String,
             account: {

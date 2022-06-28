@@ -56,10 +56,11 @@ const allowedScopes = ["token", "id", "account", "contact", "security"]
  * @param {String} redirectId Method selection redirect id
  * @param {String} oauthToken Predefined session oauth token
  * @param {String} allowedMethods Predefined session methods
+ * @param {String} responseType The token response type
  * @returns {Promise<any>}
  */
 async function createAuthenticationSession(
-    applicationId, scopes, redirectURL, state, internalState, redirectId, oauthToken, allowedMethods
+    applicationId, scopes, redirectURL, state, internalState, redirectId, oauthToken, allowedMethods, responseType
 ) {
     await prepareConnection()
     const application = await getApplication(applicationId)
@@ -83,6 +84,7 @@ async function createAuthenticationSession(
         scopes,
         allowedMethods,
         oauthToken,
+        responseType,
         user: {
             name: null,
             id: null,

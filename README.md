@@ -216,10 +216,12 @@ Begin the authentication flow by creating a new authentication session.
 
 **Request requirements**
 - Request query must include `response_type=code`.
+    - An alternate `token` response type exists, but is for now undocumented.
 - Request query must contain valid `client_id`, `redirect_uri` and `scope` parameters (more about scopes above).
 
 **Optional**
 - The request query may include the `state` query parameter to identify the session callback later on in the authentication flow.
+- The request query may include the `noRedirect` query parameter in which case the server response will not a a redirect (307), but instead a normal 200 response with the location header's name changed to `x-Location`.
 
 **Example response**
 ```http

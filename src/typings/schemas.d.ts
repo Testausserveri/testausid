@@ -22,6 +22,7 @@ interface authenticationSession {
     scopes: sessionScope[],
     allowedMethods?: String[],
     scopes: String[],
+    responseType: String,
     user: {
         name: String,
         account: {

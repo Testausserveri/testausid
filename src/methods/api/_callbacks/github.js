@@ -1,7 +1,7 @@
 const getCredentials = require("../../../util/getCredentials")
 const { updateAuthenticationSession } = require("../../../database/client")
 const request = require("../../../util/request")
-const redirectWithCode = require("../../../util/redirectWithCode")
+const callbackRedirect = require("../../../util/callbackRedirect")
 
 /**
  * Github OAuth 2.0 callback
@@ -59,5 +59,5 @@ module.exports = async (
     })
 
     // Redirect to application
-    redirectWithCode(session, res)
+    await callbackRedirect(session, res)
 }
