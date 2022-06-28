@@ -20,6 +20,8 @@ interface authenticationSession {
     code: String,
     token: String,
     scopes: sessionScope[],
+    allowedMethods?: String[],
+    scopes: String[],
     user: {
         name: String,
         account: {
