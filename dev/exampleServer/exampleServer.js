@@ -28,7 +28,7 @@ async function request(
 ) {
     return new Promise((resolve) => {
         const req = http.request({
-            path: new URL(url).pathname + (url.includes("?") ? `?${url.split("?")[1]}` : ""),
+            path: `${new URL(url).pathname}?${new URL(url).searchParams.toString()}`,
             method,
             host: new URL(url).hostname,
             port: new URL(url).port
@@ -40,7 +40,7 @@ async function request(
             res.on("end", async () => {
                 if (res.statusCode.toString().startsWith("3") && followRedirect) {
                     const redirectedRequest = await request(
-                        method, new URL(res.headers.location).pathname + (url.includes("?") ? `?${url.split("?")[1]}` : ""), headers, body, followRedirect
+                        method, `${res.headers.location}?${new URL(url).searchParams.toString()}`, headers, body, followRedirect
                     )
                     resolve(redirectedRequest)
                 } else {
