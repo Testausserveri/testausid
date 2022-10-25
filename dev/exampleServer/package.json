@@ -1,0 +1,23 @@
+{
+    "name": "testausserveri-id-server-example",
+    "version": "0.0.1",
+    "description": "",
+    "main": "exampleServer.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node exampleServer.js"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/testausserveri/testausserveri-id.git"
+    },
+    "author": "Testausserveri ry (masterminds@testausserveri.fi), Esinko (dev@esinko.net)",
+    "license": "Apache 2.0",
+    "bugs": {
+      "url": "https://github.com/testausserveri/testausserveri-id/issues"
+    },
+    "dependencies": {
+      "dotenv": "^16.0.0"
+    }
+  }
+  

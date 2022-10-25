@@ -1,11 +1,11 @@
 const http = require("http")
 
 // General configuration (examples, not real credentials)
-const clientId = "1415601040661919161210954832752729834290"
-const redirectUri = "http://localhost:80/callback"
-const secret = "ac459113ca666e49d191ae2c53eecd36b99fe3012353261b842760d84da5b84a"
+const clientId = process.env.CLIENT_ID ?? "1415601040661919161210954832752729834290"
+const redirectUri = process.env.REDIRECT_URI ?? "http://localhost:80/callback"
+const secret = process.env.SECRET ?? "ac459113ca666e49d191ae2c53eecd36b99fe3012353261b842760d84da5b84a"
 const scopes = "id,account,contact,security"
-const OAuthHost = "http://localhost:8080"
+const OAuthHost = process.env.ID_HOST ?? "http://localhost:8080"
 const port = 80
 
 /**
