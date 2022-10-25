@@ -20,10 +20,11 @@ const port = 80
  * @param {string} method The request method
  * @param {string} url The request url
  * @param {string} body The request body
+ * @param {boolean} followRedirect Should we follow redirects?
  * @returns {Promise<RequestResponse>}
  */
 async function request(
-    method, url, headers, body
+    method, url, headers, body, followRedirect
 ) {
     return new Promise((resolve) => {
         const req = http.request({
@@ -37,11 +38,18 @@ async function request(
                 d.push(buffer)
             })
             res.on("end", async () => {
-                resolve({
-                    status: res.statusCode,
-                    headers: res.headers,
-                    data: Buffer.concat(d).toString()
-                })
+                if (res.statusCode.toString().startsWith("3") && followRedirect) {
+                    const redirectedRequest = await request(
+                        method, new URL(res.headers.location).pathname + (url.includes("?") ? `?${url.split("?")[1]}` : ""), headers, body, followRedirect
+                    )
+                    resolve(redirectedRequest)
+                } else {
+                    resolve({
+                        status: res.statusCode,
+                        headers: res.headers,
+                        data: Buffer.concat(d).toString()
+                    })
+                }
             })
         })
         if (headers) {
@@ -114,7 +122,7 @@ const Server = http.createServer(async (req, res) => { // Create a simple HTTP s
                 const token = await request(
                     "POST", `${OAuthHost}/api/v1/token`, {
                         "Content-Type": "application/x-www-form-urlencoded"
-                    }, tokenParams.toString()
+                    }, tokenParams.toString(), true
                 )
                 if (token.status !== 200) throw new Error(`Failed to fetch token ${JSON.stringify(token)}`)
                 // We get a response as JSON. Next we will read the user's information from the OAuth server at /api/v1/me
