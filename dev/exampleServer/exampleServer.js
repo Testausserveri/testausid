@@ -1,6 +1,6 @@
 const http = require("http")
 
-// General configuration
+// General configuration (examples, not real credentials)
 const clientId = "1415601040661919161210954832752729834290"
 const redirectUri = "http://localhost:80/callback"
 const secret = "ac459113ca666e49d191ae2c53eecd36b99fe3012353261b842760d84da5b84a"
