@@ -117,7 +117,7 @@ API v1 implements a standard `OAuth 2.0` authentication service, with the follow
 
 *At least one scope must always be included*
 
-**Example flow of authentication with v1**
+**Example flow of authentication with v1's code flow**
 1. `[CLIENT]` The user is redirected to `/api/v1/authenticate?...` from the client application.
     - A new authentication session is created in the backend (stage: `created`)*
 2. The user is automatically redirected to `/app?state=...`
@@ -296,6 +296,27 @@ Content-Length: ...
 
 ## API V2
 Implements the same configuration as API V1. Only difference is the supported methods.
+
+**Example flow of authentication with v2's token flow**
+1. `[CLIENT]` The user is redirected to `/api/v2/authenticate?...` from the client application.
+    - A new authentication session is created in the backend (stage: `created`)*
+2. The user is automatically redirected to `/app?state=...`
+3. The user selects the platform to authenticate with.
+4. The user is redirected to `/api/v1/login?platform=...&state=...`
+    - Authentication stage changes in the backend (state: `pending`)*
+5. The user is automatically redirected to platform's login service.
+6. The user is redirected from the platform login to `/api/v1/callback` after authenticating.
+    - Authentication stage changes (stage: `completed`)*
+7. `[CLIENT]` The user is redirected back to client application's callback URL with `token=...` in the request query and gets the token.
+    - Authentication stage changes in the backend (stage: `stored`)*
+9. `[CLIENT]` The client application makes a request to `/api/v1/me` with token in the header: `Authentication: Bearer <token>`
+    - Authentication session is deleted
+<br>
+
+--> User has now been authenticated
+
+**An authentication stage change defines a point of no return for the authentication flow*
+*Steps prefixed with `[CLIENT]` are the clients responsibility*
 
 ### `POST /api/v2/request_token`
 Create an authentication session with scopes and allowed methods configured server-side.
