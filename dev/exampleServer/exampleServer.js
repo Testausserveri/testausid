@@ -1,4 +1,5 @@
 const http = require("http")
+const https = require("https")
 
 // General configuration (examples, not real credentials)
 const clientId = process.env.CLIENT_ID ?? "1415601040661919161210954832752729834290"
@@ -24,10 +25,11 @@ const port = 80
  * @returns {Promise<RequestResponse>}
  */
 async function request(
-    method, url, headers, body, followRedirect
+    method, url, headers, body, followRedirect, previousRedirects
 ) {
     return new Promise((resolve) => {
-        const req = http.request({
+        const lib = new URL(url).protocol.toLowerCase().includes("https") ? https : http
+        const req = lib.request({
             path: `${new URL(url).pathname}?${new URL(url).searchParams.toString()}`,
             method,
             host: new URL(url).hostname,
@@ -39,8 +41,13 @@ async function request(
             })
             res.on("end", async () => {
                 if (res.statusCode.toString().startsWith("3") && followRedirect) {
+                    // eslint-disable-next-line no-param-reassign
+                    if (!previousRedirects) previousRedirects = 0
+                    // eslint-disable-next-line no-param-reassign
+                    previousRedirects += 1
+                    if (previousRedirects > 5) throw new Error("Maximum number of redirects reached, do we have a loop?")
                     const redirectedRequest = await request(
-                        method, `${res.headers.location}?${new URL(url).searchParams.toString()}`, headers, body, followRedirect
+                        method, `${res.headers.location}?${new URL(url).searchParams.toString()}`, headers, body, followRedirect, previousRedirects
                     )
                     resolve(redirectedRequest)
                 } else {
