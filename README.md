@@ -19,12 +19,10 @@ and the example client implementation at `idexample.testausserveri.fi`.
 
 # TODO-list
 You should read these before making an issue. These will be fixed/implemented asap.
-- Distinguishable unique identifiers. Tokens, codes, secrets and ids should look different. For example, the ID could only be numbers.
 - Port over the other 8 login methods from the prototype
-- General codebase cleanup and code audit
+- Code audit
 - Cybersecurity assessment
 - Bug bounty?
-- Docker setup
 - Token revocation after authentication
 
 # Documentation
