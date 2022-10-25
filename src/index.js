@@ -33,8 +33,6 @@ const {
 console.log(`Package: ${Package.name}@${Package.version}`)
 console.log(`Runtime: ${process.version}`)
 
-require("./console")
-
 // Constants
 const responseTimeout = process.env.RESPONSE_TIMEOUT ?? 30000
 const serverPort = process.env.PORT ?? 7080 // Default in docker-compose
@@ -44,6 +42,13 @@ const rl = readline.createInterface({
     output: process.stdout,
     prompt: "> "
 })
+global.rl = rl // Used in console.js (TODO bad way to do this, change later)
+
+// Custom console functions (overwrites native functions)
+require("./console")
+
+// eslint-disable-next-line max-len
+if (process.env.REDIRECTBASE && (new URL(process.env.REDIRECTBASE).port !== serverPort)) console.warn("Server location does not match the redirect base. OAuth applications will not directly redirect the user to this server. I hope you know what you are doing ...")
 
 // Global variables
 /**
@@ -105,11 +110,14 @@ async function handleRequest(req, res) {
                 "Content-Type": "text/plain"
             })
             res.end(`An unexpected internal server error ocurred while handling method ${method.name}`)
+            console.error(`Method ${method.name}`, e)
             break
         }
         if (!nextCalled) break
+        // If the request was handled, stop the loop
+        if (res.headersSent && res.writableEnded) break
     }
-    if (!res.headersSent && res.writable) {
+    if (!res.headersSent && res.writable && !res.writableEnded) {
         res.writeHead(500)
         res.end("Request not handled.")
     }
@@ -129,7 +137,7 @@ function createServer(ip, port) {
             try {
                 const timeout = setTimeout(() => {
                     // TODO: Possible race conditions here?
-                    if (!response.headersSent && response.writable) {
+                    if (!response.headersSent && response.writable && !response.writableEnded) {
                         response.writeHead(408)
                         response.end("Oops! It seems your response was lost to the void...")
                     }
@@ -137,7 +145,7 @@ function createServer(ip, port) {
                 handleRequest(request, response).then(() => clearTimeout(timeout))
             } catch (err) {
                 console.error("Failed to handle request:", err)
-                if (!response.headersSent && response.writable) {
+                if (!response.headersSent && response.writable && !response.writableEnded) {
                     response.writeHead(500)
                     response.end("Oops! Something broke...")
                 }
@@ -162,8 +170,8 @@ function cli() {
         const command = input.split(" ")[0]
         switch (command) {
         case "createApplication": {
-            const functionInput = JSON.parse(input.replace(`${command} `, ""))
             try {
+                const functionInput = JSON.parse(input.replace(`${command} `, ""))
                 await createApplication(
                     functionInput.name, functionInput.homepage, functionInput.icon, functionInput.redirectURLs
                 )
@@ -174,8 +182,8 @@ function cli() {
             break
         }
         case "updateApplication": {
-            const functionInput = JSON.parse(input.replace(`${command} `, ""))
             try {
+                const functionInput = JSON.parse(input.replace(`${command} `, ""))
                 await updateApplication({ id: functionInput.id }, functionInput)
                 console.log("Application updated!")
             } catch (e) {
@@ -188,8 +196,8 @@ function cli() {
             break
         }
         case "removeApplication": {
-            const functionInput = JSON.parse(input.replace(`${command} `, ""))
             try {
+                const functionInput = JSON.parse(input.replace(`${command} `, ""))
                 await removeApplication(functionInput)
                 console.log("Application removed!")
             } catch (e) {

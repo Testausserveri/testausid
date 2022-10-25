@@ -31,11 +31,10 @@ module.exports = {
      * @param {import("http").ServerResponse} res
      * @param {function} next
      */
-    handler: async (req, res) => {
+    handler: async (req, res, next) => {
         if (!enforceMethod("GET", req)) {
             res.writeHead(405)
-            res.end("Method not allowed")
-            return
+            return res.end("Method not allowed")
         }
         try {
             // Construct and make sure the given path is safe to load files from
@@ -55,8 +54,7 @@ module.exports = {
                 res.writeHead(404, {
                     "Content-Type": "text/plain"
                 })
-                res.end("No such file")
-                return
+                return res.end("No such file")
             }
 
             // As a sanity check, the filepath should start with cwd+/src/app/
@@ -66,8 +64,7 @@ module.exports = {
                 res.writeHead(400, {
                     "Content-Type": "text/plain"
                 })
-                res.end("Unexpected given filepath.")
-                return
+                return res.end("Unexpected given filepath.")
             }
 
             // Send the data
@@ -75,13 +72,16 @@ module.exports = {
                 "Content-Type": contentTypeTable[fileType] ?? "text/plain",
                 "Cache-Control": "max-age=31536000"
             })
-            res.end(readFileSync(path))
+            return res.end(readFileSync(path))
         } catch (err) {
             console.error("Filesystem error:", err)
             if (!res.headersSent && res.writable) {
                 res.writeHead(500)
-                res.end("Filesystem error.")
+                return res.end("Filesystem error.")
             }
         }
+
+        // Fallback
+        return next()
     }
 }

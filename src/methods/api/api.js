@@ -15,7 +15,7 @@ module.exports = {
             "Content-Type": "application/json"
         })
         res.end(JSON.stringify({
-            latest: "v1",
+            latest: "v2-partial, v1",
             available: [
                 "GET /api/v1/authenticate",
                 "POST /api/v1/token",
@@ -24,7 +24,8 @@ module.exports = {
                 "GET /api/v1/login",
                 "GET /api/v1/callback",
                 "GET /api/v1/me",
-                "POST /api/v1/request_token"
+                "POST /api/v2/request_token",
+                "POST /api/v2/authenticate"
             ]
         }))
     }

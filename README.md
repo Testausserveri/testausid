@@ -216,7 +216,7 @@ Begin the authentication flow by creating a new authentication session.
 
 **Request requirements**
 - Request query must include `response_type=code`.
-    - An alternate `token` response type exists, but is for now undocumented.
+    - An alternate `token` response type exists in the V2 API (documentation below).
 - Request query must contain valid `client_id`, `redirect_uri` and `scope` parameters (more about scopes above).
 
 **Optional**
@@ -262,35 +262,6 @@ If you are not redirected, click <a href="https://discord.com/api/oauth2/authori
 ### `GET /api/v1/callback` (private)
 The callback url from the selected authentication method. Request requirements are method specific. Responses are method specific. See `/src/methods/api/_callbacks/`.
 
-### `POST /api/v1/request_token`
-Create an authentication session with scopes and allowed methods configured server-side.
-
-This somewhat imitates the OAuth 1.0a authorization flow.
-
-**Request requirements**
-- The request headers must include the client secret token as "Bearer" (`Bearer <token>`).
-- Header "Content-Type" must be "application/x-www-form-urlencoded"
-- The request body must include parameters
-    - redirect_uri
-    - scope (authentication scopes)
-    - methods (list of method IDs see /api/v1/methods for more details)
-
-**Optional**
-- The request body may include the `state` parameter to identify the session callback later on in the authentication flow.
-
-**Example response**
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-Date: Mon, 07 Mar 2022 09:46:17 GMT
-Connection: close
-Content-Length: ...
-```
-
-```json
-{ "oauth_token": "..." }
-```
-
 ### `GET /api/v1/me`
 Get information about the logged-in user.
 
@@ -325,11 +296,68 @@ Content-Length: ...
 
 *The fields prefixed with ? are present/missing depending on what scopes were used. See available scopes above.*
 
+## API V2
+Implements the same configuration as API V1. Only difference is the supported methods.
+
+### `POST /api/v2/request_token`
+Create an authentication session with scopes and allowed methods configured server-side.
+
+This somewhat imitates the OAuth 1.0a authorization flow.
+
+**Request requirements**
+- The request headers must include the client secret token as "Bearer" (`Bearer <token>`).
+- Header "Content-Type" must be "application/x-www-form-urlencoded"
+- The request body must include parameters
+    - redirect_uri
+    - scope (authentication scopes)
+    - methods (list of method IDs see /api/v1/methods for more details)
+
+**Optional**
+- The request body may include the `state` parameter to identify the session callback later on in the authentication flow.
+
+**Example response**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Mon, 07 Mar 2022 09:46:17 GMT
+Connection: close
+Content-Length: ...
+```
+
+```json
+{ "oauth_token": "..." }
+```
+
+### `GET /api/v2/authenticate`
+Continue the authentication flow after manual session creation to the "created" stage.
+
+**Request requirements**
+- Request query must contain valid `oauth_token`. If no `oauth_token` is provided, see next requirement.
+- (If no `oauth_token` is provided) Request query must contain `response_type=token`.
+    - Therefore, the request must contain valid `client_id`, `redirect_uri` and `scope` parameters (more about scopes above).
+
+**Optional**
+- The request query may include the `state` query parameter to identify the session callback later on in the authentication flow.
+- The request query may include the `noRedirect` query parameter in which case the server response will not a a redirect (307), but instead a normal 200 response with the location header's name changed to `x-Location`.
+
+**Example response**
+```http
+HTTP/1.1 307 Temporary Redirect
+Location: /app?scopes=token,id,account,contact,security&client_id=d3c89442d3574aa5bbaea011f2d43e14&state=572dd500b8c73b26b00a45693336058c&redirect_uri=http://localhost/callback
+Content-Type: text/html
+Date: Mon, 07 Mar 2022 09:46:15 GMT
+Connection: close
+Content-Length: 218
+```
+
+```html
+If you are not redirected click <a href="/app?scopes=token,id,account,contact,security&client_id=d3c89442d3574aa5bbaea011f2d43e14&state=572dd500b8c73b26b00a45693336058c&redirect_uri=http://localhost/callback">this</a>.
+```
 
 # Development resources and notes
 About OAuth: https://aaronparecki.com/oauth-2-simplified/
 
-## Authentication statuses
+## Authentication stages
 - created (after /authenticate call)
 - pending (after platform has called back, user redirected)
 - completed (after callback)

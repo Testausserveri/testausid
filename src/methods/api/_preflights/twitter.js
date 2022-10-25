@@ -29,7 +29,10 @@ module.exports = async (
         Authorization: `OAuth ${signatureConstruct.params.toString().replace(/&/g, "\", ").replace(/=/g, "=\"")}"`,
         "Content-Type": "request"
     })
-    if (firstStep.status !== 200) throw new Error("safe: Unable to initialize authorization flow. This is likely a Twitter issue.")
+    if (firstStep.status !== 200) {
+        console.error("Twitter preflight error", firstStep.data)
+        throw new Error("safe: Unable to initialize authorization flow. This is likely a Twitter issue.")
+    }
     // Redirect user to login
     const location = method.url
         // eslint-disable-next-line no-template-curly-in-string

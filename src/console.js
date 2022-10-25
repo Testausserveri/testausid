@@ -38,12 +38,16 @@ global.consoleConfig = {
     }
 }
 
+if (!global.consoleConfig || !global.rl) throw new Error("Required global variables not defined. Too bad.")
+
 // eslint-disable-next-line no-restricted-syntax, guard-for-in
 for (const func in global.consoleConfig) {
     const real = console[func]
     console[func] = async (...args) => { // A proxy
+        process.stdout.cursorTo(0) // Overwrites the prompt, if it is present
         real(
             `${colors.Reset}[ ${new Date().toTimeString().split(" ")[0]} ]${colors[global.consoleConfig[func].color] ?? ""}`, global.consoleConfig[func].prefix ?? "", ...args, colors.Reset
         )
+        global.rl.prompt() // Re-prompt
     }
 }

@@ -48,7 +48,7 @@ module.exports = {
                         <!-- App content footer-->
                         <div class="footer" id="footer">
                             <span class="line"></span>
-                            <p style="white-space: nowrap;">Copyright © <a name="copyright">Testausserveri ry</a>.<wbr> All rights reserved.</p>
+                            <p style="white-space: nowrap;">Copyright © <a name="copyright">Testausserveri ry and contributors</a>.<wbr> All rights reserved.</p>
                         </div>
                     </div>
                 </div>
