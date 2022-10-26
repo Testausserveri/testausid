@@ -33,9 +33,11 @@ module.exports = async (session, res) => {
         }
     } else if (session.responseType === "code") {
         newLocation.searchParams.set("code", session.code)
+    } else {
+        return handleError(new Error("Session does not have responseType set"), res)
     }
-    newLocation.searchParams.set("state", session.state)
 
+    newLocation.searchParams.set("state", session.state)
     res.writeHead(307, {
         "Content-Type": "text/html",
         Location: newLocation.toString()

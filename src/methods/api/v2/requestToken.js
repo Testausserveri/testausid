@@ -81,9 +81,11 @@ module.exports = {
         const state = requestParams.get("state")
         const scopes = (requestParams.get("scope") ?? "").split(",") // Comma separated list
         const allowedMethods = (requestParams.get("methods") ?? "").split(",") // Comma separated list
+        const responseType = requestParams.get("response_type") ?? ""
 
         // Verify given session configuration
-        if (!application.redirectURLs.includes(redirectURL)) { // redirectURL must be valid
+        // redirectURL must be valid
+        if (!application.redirectURLs.includes(redirectURL)) {
             res.writeHead(400, {
                 "Content-Type": "application/json"
             })
@@ -91,7 +93,9 @@ module.exports = {
                 error: "Invalid redirect_uri"
             }))
         }
-        if (scopes.length < 1) { // There must be scope(s)
+
+        // There must be scope(s)
+        if (scopes.length < 1) {
             res.writeHead(400, {
                 "Content-Type": "application/json"
             })
@@ -99,7 +103,9 @@ module.exports = {
                 error: "At least one scope required"
             }))
         }
-        if (allowedMethods.length < 1) { // There must be method(s)
+
+        // There must be method(s)
+        if (allowedMethods.length < 1) {
             res.writeHead(400, {
                 "Content-Type": "application/json"
             })
@@ -107,7 +113,9 @@ module.exports = {
                 error: "At least one method required"
             }))
         }
-        if (allowedMethods // All methods must be valid
+
+        // All methods must be valid
+        if (allowedMethods
             .map((method) => resolveFromObject("id", method, methods))
             .filter((result) => !result).length !== 0
         ) {
@@ -119,6 +127,16 @@ module.exports = {
             }))
         }
 
+        // Valid response_type is required
+        if (!["token", "code"].includes(responseType)) {
+            res.writeHead(400, {
+                "Content-Type": "application/json"
+            })
+            return res.end(JSON.stringify({
+                error: "Invalid response_type"
+            }))
+        }
+
         // Generate identifiers for the authentication session and the redirect
         const internalState = generateRandomString(32)
         const redirectId = generateRandomString(16)
@@ -127,7 +145,7 @@ module.exports = {
         try {
             // Create the authentication session
             await createAuthenticationSession(
-                application.id, scopes, redirectURL, state, internalState, redirectId, oauthToken, allowedMethods
+                application.id, scopes, redirectURL, state, internalState, redirectId, oauthToken, allowedMethods, responseType
             )
 
             // Redirect user to login

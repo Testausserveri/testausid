@@ -175,6 +175,7 @@ const Server = http.createServer(async (req, res) => { // Create a simple HTTP s
         const params = new URLSearchParams()
         params.set("redirect_uri", redirectUri)
         params.set("scope", scopes)
+        params.set("response_type", "code") // Constant
         // Discord & Twitter, get list of method IDs with /api/v1/methods
         params.set("methods", "2db260c7-8ca9-42a3-8de8-a6a3c37be89e,ba8aad4d-9014-4ecc-9df3-e2d520b4c23e")
         const tokenRequest = await request(
