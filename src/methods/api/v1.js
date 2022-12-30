@@ -91,7 +91,7 @@ module.exports = {
                         "Content-Type": "application/json"
                     })
                     return res.end(JSON.stringify({
-                        error: "\"authorization_code\" must be \"authorization_code\""
+                        error: "\"grant_type\" must be \"authorization_code\""
                     }))
                 }
 
