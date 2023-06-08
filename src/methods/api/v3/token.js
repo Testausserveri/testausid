@@ -21,7 +21,6 @@ module.exports = {
      * @param {function} next
      */
     handler: async (req, res, next) => {
-
         // Handle POST requests
         if (req.method === "POST") {
             // Get input params
