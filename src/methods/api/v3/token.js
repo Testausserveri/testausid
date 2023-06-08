@@ -13,7 +13,7 @@ const parseFormUrlEncoded = require("../../../util/parseFormUrlEncoded")
  * Authenticate endpoint
  */
 module.exports = {
-    path: "/api/v3/authenticate", // RegEx or a normal string
+    path: "/api/v3/token", // RegEx or a normal string
     /**
      * Method handler function
      * @param {import("http").IncomingMessage} req
