@@ -134,6 +134,14 @@ function createServer(ip, port) {
     return new Promise((resolve, reject) => {
         let isPending = true
         const instance = createHTTPServer(async (request, response) => {
+            function trySendInternalError(err) {
+                console.error("Failed to handle request:", err)
+                if (!response.headersSent && response.writable && !response.writableEnded) {
+                    response.writeHead(500)
+                    response.end("Oops! Something broke...")
+                }
+            }
+            
             try {
                 const timeout = setTimeout(() => {
                     // TODO: Possible race conditions here?
@@ -142,13 +150,11 @@ function createServer(ip, port) {
                         response.end("Oops! It seems your response was lost to the void...")
                     }
                 }, responseTimeout)
-                handleRequest(request, response).then(() => clearTimeout(timeout))
+                handleRequest(request, response).then(() => clearTimeout(timeout)).catch((err) => {
+                    trySendInternalError(err)
+                })
             } catch (err) {
-                console.error("Failed to handle request:", err)
-                if (!response.headersSent && response.writable && !response.writableEnded) {
-                    response.writeHead(500)
-                    response.end("Oops! Something broke...")
-                }
+                trySendInternalError(err)
             }
         })
         instance.on("error", (e) => {
